@@ -7,35 +7,65 @@
 {{ end }}
 {{ define "content" }}
 <div class="home-main-container">
-    <!-- <div class="home-top-banner">
-        <p class="home-top-banner-text">My Weight</p>
-        <img class="user-icon" src="/web/images/user-icon.png" alt="user icon">
+    <header class="home-header">
+        <h2 class="home-title">
+            Vibe Check
+        </h3>
+    </header>
+    <!-- <div class="container">
+        <h2>Repo Name</h2>
+        <p>This is a GitHub-style dark card.</p>
+        <a href="#">View more</a>
+        <br><br>
+        <button>Star</button>
     </div>
-    <div class="home-weight-container">
-        <div class="home-weight-component">
-            <p class="home-weight-amount">{{ .CurrentWeight }} lb</p>
-            <p class="home-weight-sub-text">Current</p>
-        </div>
-        <div class="home-weight-component-alt">
-            <div class="home-weight-sub-component">
-                <p class="home-weight-amount">{{ .TargetWeight }} lb</p>
-                <p class="home-weight-sub-text">Target</p>
-            </div>
-            <a href="/target-weight-entry">
-                <img class="edit-icon" src="/web/images/edit-icon.png" alt="edit icon">
-            </a>
-        </div>
-    </div>
-    <canvas id="weight-chart"></canvas>
-    <a id="weight-entry-link" href="/daily-weight-entry">
-        <img class="plus-icon" src="/web/images/plus-icon.png" alt="plus icon">
-    </a> -->
     <div class="container">
         <h2>Repo Name</h2>
         <p>This is a GitHub-style dark card.</p>
         <a href="#">View more</a>
         <br><br>
         <button>Star</button>
+    </div> -->
+    <div class="page-center">
+        <div class="calendar">
+            <div class="calendar-header">April</div>
+            <div class="calendar-grid">
+                <!-- 7 columns × ~5 rows -->
+                <!-- You can generate these in Go later -->
+                <div class="day"></div>
+                <div class="day"></div>
+                <div class="day active"></div>
+                <div class="day"></div>
+                <div class="day"></div>
+                <div class="day active"></div>
+                <div class="day"></div>
+
+                <div class="day"></div>
+                <div class="day"></div>
+                <div class="day active"></div>
+                <div class="day"></div>
+                <div class="day"></div>
+                <div class="day active"></div>
+                <div class="day"></div>
+
+                <div class="day"></div>
+                <div class="day"></div>
+                <div class="day active"></div>
+                <div class="day"></div>
+                <div class="day"></div>
+                <div class="day active"></div>
+                <div class="day"></div>
+
+                <div class="day"></div>
+                <div class="day"></div>
+                <div class="day active"></div>
+                <div class="day"></div>
+                <div class="day"></div>
+                <div class="day active"></div>
+                <div class="day"></div>
+                <!-- repeat ~35 times total -->
+            </div>
+        </div>
     </div>
 </div>
 {{ end }}

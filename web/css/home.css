@@ -62,3 +62,60 @@ code, pre {
   padding: 4px 8px;
   font-family: monospace;
 }
+
+header {
+  display: flex;
+  align-items: center;
+  justify-content: center;
+}
+
+/* Center everything on the page */
+.page-center {
+  display: flex;
+  justify-content: center;
+  align-items: center;
+  height: 100vh;
+}
+
+/* Bigger calendar container */
+.calendar {
+  background-color: #161b22;
+  border: 1px solid #30363d;
+  border-radius: 10px;
+  padding: 32px;
+}
+
+/* Bigger month title */
+.calendar-header {
+  color: #e6edf3;
+  font-size: 28px;
+  font-weight: 600;
+  margin-bottom: 20px;
+  text-align: center;
+}
+
+/* Bigger grid */
+.calendar-grid {
+  display: grid;
+  grid-template-columns: repeat(7, 28px); /* doubled */
+  gap: 8px;
+}
+
+/* Bigger squares */
+.day {
+  width: 28px;
+  height: 28px;
+  background-color: #21262d;
+  border-radius: 4px;
+}
+
+/* Active */
+.day.active {
+  background-color: #2ea043;
+}
+
+/* Optional intensity */
+.day.level-1 { background-color: #0e4429; }
+.day.level-2 { background-color: #006d32; }
+.day.level-3 { background-color: #26a641; }
+.day.level-4 { background-color: #39d353; }
