@@ -1,0 +1,38 @@
+
+{{ define "home" }}
+{{ template "base" . }}
+{{ end }}
+{{ define "styles"}}
+<link rel="stylesheet" href="/web/css/home.css">
+{{ end }}
+{{ define "content" }}
+<div class="home-main-container">
+    <!-- <div class="home-top-banner">
+        <p class="home-top-banner-text">My Weight</p>
+        <img class="user-icon" src="/web/images/user-icon.png" alt="user icon">
+    </div>
+    <div class="home-weight-container">
+        <div class="home-weight-component">
+            <p class="home-weight-amount">{{ .CurrentWeight }} lb</p>
+            <p class="home-weight-sub-text">Current</p>
+        </div>
+        <div class="home-weight-component-alt">
+            <div class="home-weight-sub-component">
+                <p class="home-weight-amount">{{ .TargetWeight }} lb</p>
+                <p class="home-weight-sub-text">Target</p>
+            </div>
+            <a href="/target-weight-entry">
+                <img class="edit-icon" src="/web/images/edit-icon.png" alt="edit icon">
+            </a>
+        </div>
+    </div>
+    <canvas id="weight-chart"></canvas>
+    <a id="weight-entry-link" href="/daily-weight-entry">
+        <img class="plus-icon" src="/web/images/plus-icon.png" alt="plus icon">
+    </a> -->
+    <p>Hello World</p>
+</div>
+{{ end }}
+{{ define "scripts" }}
+<script src="/web/js/home.js"></script>
+{{ end }}
