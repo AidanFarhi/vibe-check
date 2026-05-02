@@ -171,10 +171,3 @@ Two services:
 The `app` service depends on `db`, uses environment variables for the DSN, and runs migrations on startup before accepting traffic.
 
 ---
-
-## Open Questions / Future Considerations
-
-- **Auth**: currently single-user (no login). Multi-user support would require a `users` table and session management.
-- **Charting library**: Chart.js is used for all graphs. Metric data is embedded in the rendered HTML as JSON and passed to Chart.js on the client to draw line charts.
-- **Notes field**: a free-text note per entry could add context to metric spikes.
-- **Notifications/reminders**: a daily reminder (email or browser push) to prompt entry submission.
