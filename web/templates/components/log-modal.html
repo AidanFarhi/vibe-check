@@ -1,0 +1,60 @@
+{{ define "log-modal" }}
+<div class="modal-overlay" id="modalOverlay" onclick="handleOverlayClick(event)">
+    <div class="modal">
+        <div class="modal-handle"></div>
+        <div class="modal-title">How are you today?</div>
+
+        <div class="form-row">
+            <div class="form-label">
+                <span class="form-label-name">Energy</span>
+                <span class="form-label-value" id="val-energy">5</span>
+            </div>
+            <input type="range" min="0" max="10" value="5" oninput="updateVal('energy',this.value)">
+        </div>
+        <div class="form-row">
+            <div class="form-label">
+                <span class="form-label-name">Sleep Quality</span>
+                <span class="form-label-value" id="val-sleep">5</span>
+            </div>
+            <input type="range" min="0" max="10" value="5" oninput="updateVal('sleep',this.value)">
+        </div>
+        <div class="form-row">
+            <div class="form-label">
+                <span class="form-label-name">Sadness</span>
+                <span class="form-label-value" id="val-sadness">5</span>
+            </div>
+            <input type="range" min="0" max="10" value="5" oninput="updateVal('sadness',this.value)">
+        </div>
+        <div class="form-row">
+            <div class="form-label">
+                <span class="form-label-name">Anger</span>
+                <span class="form-label-value" id="val-anger">5</span>
+            </div>
+            <input type="range" min="0" max="10" value="5" oninput="updateVal('anger',this.value)">
+        </div>
+        <div class="form-row">
+            <div class="form-label">
+                <span class="form-label-name">Pain</span>
+                <span class="form-label-value" id="val-pain">5</span>
+            </div>
+            <input type="range" min="0" max="10" value="5" oninput="updateVal('pain',this.value)">
+        </div>
+        <div class="form-row">
+            <div class="form-label">
+                <span class="form-label-name">Depression</span>
+                <span class="form-label-value" id="val-depression">5</span>
+            </div>
+            <input type="range" min="0" max="10" value="5" oninput="updateVal('depression',this.value)">
+        </div>
+        <div class="form-row">
+            <div class="form-label"><span class="form-label-name">Note</span></div>
+            <textarea placeholder="Anything on your mind today…"></textarea>
+        </div>
+
+        <div class="form-actions">
+            <button class="btn-cancel" onclick="closeModal()">Cancel</button>
+            <button class="btn-save"   onclick="closeModal()">Save Entry</button>
+        </div>
+    </div>
+</div>
+{{ end }}

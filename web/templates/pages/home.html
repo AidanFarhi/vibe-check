@@ -7,32 +7,13 @@
 {{ end }}
 
 {{ define "content" }}
-<div class="app">
-    {{ template "navbar" . }}
-
-    <main class="main">
-        <div class="view today-view">
-
-            <header class="page-head">
-                <div>
-                    <div class="page-eyebrow">SUN · Sunday, May 3, 2026</div>
-                    <h1 class="page-title">How are you, really?</h1>
-                </div>
-                <div class="vibe-score">
-                    <div class="vibe-num">7.2</div>
-                    <div class="vibe-meta">
-                        <div class="vibe-out">/10</div>
-                        <div class="vibe-word">good</div>
-                    </div>
-                </div>
-            </header>
-
-            {{ template "metrics-card" . }}
-            {{ template "recent-strip" . }}
-
-        </div>
-    </main>
-</div>
+{{ template "page-header" . }}
+{{ template "today-card" . }}
+{{ template "metric-tiles" . }}
+{{ template "note-card" . }}
+{{ template "chart-card" . }}
+{{ template "log-button" . }}
+{{ template "log-modal" . }}
 {{ end }}
 
 {{ define "scripts" }}

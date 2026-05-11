@@ -151,23 +151,9 @@ vibe-check/
 │   │       └── home.html
 │   ├── css/
 │   └── js/
-├── docker-compose.yml
 ├── Dockerfile
 └── design-doc/
     └── high-level-design.md
 ```
-
----
-
-## Docker Compose
-
-Two services:
-
-| Service | Image              | Purpose                  |
-|---------|--------------------|--------------------------|
-| `app`   | Local Dockerfile   | Go HTTP server           |
-| `db`    | `postgres:17`      | PostgreSQL database      |
-
-The `app` service depends on `db`, uses environment variables for the DSN, and runs migrations on startup before accepting traffic.
 
 ---
