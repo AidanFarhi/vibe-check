@@ -3,12 +3,20 @@ package main
 import (
 	"log"
 	"net/http"
+	"os"
 
+	"github.com/joho/godotenv"
 	"vibecheck/internal/controller"
 	"vibecheck/internal/middleware"
 )
 
 func main() {
+	if _, err := os.Stat(".env"); err == nil {
+		if err := godotenv.Load(); err != nil {
+			log.Fatal("error loading .env:", err)
+		}
+	}
+
 	mux := http.NewServeMux()
 
 	mux.Handle("GET /web/", http.StripPrefix("/web/", http.FileServer(http.Dir("web"))))
