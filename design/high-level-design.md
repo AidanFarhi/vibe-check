@@ -2,7 +2,7 @@
 
 ## Overview
 
-Vibe Check is a personal health tracking tool that lets users log daily wellness metrics and visualize trends over time. Users submit a simple daily entry rating five dimensions of wellbeing on a 1–10 scale. The app then surfaces those readings as charts and summaries to help users spot patterns.
+Vibe Check is a personal health tracking tool that lets users log daily wellness metrics and visualize trends over time. Users submit a simple daily entry rating five dimensions of wellbeing on a 1–10 scale and optionally add a free-text note for the day. The app then surfaces those readings as charts and summaries to help users spot patterns.
 
 ### Tracked Metrics
 
@@ -24,7 +24,7 @@ Vibe Check is a personal health tracking tool that lets users log daily wellness
 | Database   | PostgreSQL                        |
 | Frontend   | HTMX + Go HTML Templates          |
 | Charting   | Chart.js                          |
-| Container  | Docker / docker-compose           |
+| Container  | Docker                            |
 
 ---
 
@@ -87,15 +87,25 @@ repo ← domain ← service ← controller
 ## Data Model
 
 ```sql
-CREATE TABLE entries (
+CREATE TABLE "user" (
+    id              UUID        PRIMARY KEY DEFAULT gen_random_uuid(),
+    email           TEXT        NOT NULL UNIQUE,
+    password_hash   TEXT        NOT NULL,
+    created_at      TIMESTAMPTZ NOT NULL DEFAULT now()
+);
+
+CREATE TABLE entry (
     id         UUID        PRIMARY KEY DEFAULT gen_random_uuid(),
-    date       DATE        NOT NULL UNIQUE,
+    user_id    UUID        NOT NULL REFERENCES "user"(id),
+    date       DATE        NOT NULL,
     depression SMALLINT    NOT NULL CHECK (depression  BETWEEN 1 AND 10),
     happiness  SMALLINT    NOT NULL CHECK (happiness   BETWEEN 1 AND 10),
     pain       SMALLINT    NOT NULL CHECK (pain        BETWEEN 1 AND 10),
     energy     SMALLINT    NOT NULL CHECK (energy      BETWEEN 1 AND 10),
     sleep      SMALLINT    NOT NULL CHECK (sleep       BETWEEN 1 AND 10),
-    created_at TIMESTAMPTZ NOT NULL DEFAULT now()
+    note       TEXT,
+    created_at TIMESTAMPTZ NOT NULL DEFAULT now(),
+    UNIQUE (user_id, date)
 );
 ```
 
@@ -105,7 +115,7 @@ CREATE TABLE entries (
 
 ### 1. Submit Daily Entry
 1. User opens the home page; a form pre-filled with today's date is shown.
-2. User sets sliders/inputs for each metric and submits.
+2. User sets sliders/inputs for each metric, optionally writes a note for the day, and submits.
 3. HTMX posts to `POST /entries`; the controller calls `SubmitEntry` on the service.
 4. On success, the server returns an updated chart partial via HTMX swap.
 5. On validation error, the form partial is re-rendered with inline errors.
