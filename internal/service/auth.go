@@ -31,7 +31,11 @@ func (s *AuthService) Register(email, password string) error {
 	if err != nil {
 		return err
 	}
-	_, err = s.users.CreateUser(strings.ToLower(strings.TrimSpace(email)), string(hash))
+	u, err := domain.NewUser(email, string(hash))
+	if err != nil {
+		return err
+	}
+	_, err = s.users.CreateUser(u)
 	return err
 }
 

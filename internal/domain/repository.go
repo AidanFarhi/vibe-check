@@ -8,7 +8,7 @@ import (
 var ErrEmailTaken = errors.New("email already registered")
 
 type UserRepository interface {
-	CreateUser(email, passwordHash string) (*User, error)
+	CreateUser(u *User) (*User, error)
 	GetUserByEmail(email string) (*User, error)
 }
 

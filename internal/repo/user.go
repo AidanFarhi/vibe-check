@@ -13,13 +13,13 @@ type UserRepo struct{ db *sql.DB }
 
 func NewUserRepo(db *sql.DB) *UserRepo { return &UserRepo{db: db} }
 
-func (r *UserRepo) CreateUser(email, passwordHash string) (*domain.User, error) {
-	u := &domain.User{}
+func (r *UserRepo) CreateUser(u *domain.User) (*domain.User, error) {
+	out := &domain.User{}
 	err := r.db.QueryRow(
 		`INSERT INTO "user" (email, password_hash) VALUES ($1, $2)
 		 RETURNING id, email, password_hash, created_at`,
-		email, passwordHash,
-	).Scan(&u.ID, &u.Email, &u.PasswordHash, &u.CreatedAt)
+		u.Email, u.PasswordHash,
+	).Scan(&out.ID, &out.Email, &out.PasswordHash, &out.CreatedAt)
 	if err != nil {
 		var pqErr *pq.Error
 		if errors.As(err, &pqErr) && pqErr.Code == "23505" {
@@ -27,7 +27,7 @@ func (r *UserRepo) CreateUser(email, passwordHash string) (*domain.User, error) 
 		}
 		return nil, fmt.Errorf("create user: %w", err)
 	}
-	return u, nil
+	return out, nil
 }
 
 func (r *UserRepo) GetUserByEmail(email string) (*domain.User, error) {
