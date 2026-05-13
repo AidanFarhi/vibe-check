@@ -1,0 +1,34 @@
+{{ define "register" }}
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Register — Vibe Check</title>
+    <link rel="stylesheet" href="/web/css/base.css">
+    <link rel="stylesheet" href="/web/css/auth.css">
+</head>
+<body>
+    <div class="auth-card">
+        <div class="auth-logo">Vibe <span>Check</span></div>
+        <h1 class="auth-title">Create account</h1>
+        <p class="auth-subtitle">Start tracking your daily wellbeing.</p>
+        {{ if .Error }}
+        <div class="auth-error">{{ .Error }}</div>
+        {{ end }}
+        <form method="POST" action="/register">
+            <div class="form-row">
+                <label class="form-label-name" for="email">Email</label>
+                <input type="email" id="email" name="email" placeholder="you@example.com" required autofocus>
+            </div>
+            <div class="form-row">
+                <label class="form-label-name" for="password">Password</label>
+                <input type="password" id="password" name="password" placeholder="At least 8 characters" required minlength="8">
+            </div>
+            <button type="submit" class="btn-primary">Create Account</button>
+        </form>
+        <p class="auth-footer">Already have an account? <a href="/login">Log in</a></p>
+    </div>
+</body>
+</html>
+{{ end }}

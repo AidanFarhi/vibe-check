@@ -1,0 +1,19 @@
+package domain
+
+import (
+	"errors"
+	"time"
+)
+
+var ErrEmailTaken = errors.New("email already registered")
+
+type UserRepository interface {
+	CreateUser(email, passwordHash string) (*User, error)
+	GetUserByEmail(email string) (*User, error)
+}
+
+type SessionRepository interface {
+	CreateSession(userID, token string, expiresAt time.Time) (*Session, error)
+	GetSessionByToken(token string) (*Session, error)
+	DeleteSession(token string) error
+}

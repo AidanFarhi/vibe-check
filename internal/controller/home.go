@@ -9,10 +9,7 @@ type Home struct {
 	tmpl *template.Template
 }
 
-func NewHome() *Home {
-	tmpl := template.Must(template.New("").ParseGlob("web/templates/*.html"))
-	template.Must(tmpl.ParseGlob("web/templates/pages/*.html"))
-	template.Must(tmpl.ParseGlob("web/templates/components/*.html"))
+func NewHome(tmpl *template.Template) *Home {
 	return &Home{tmpl: tmpl}
 }
 
