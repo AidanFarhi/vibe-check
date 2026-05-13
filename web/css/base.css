@@ -20,3 +20,10 @@ body {
   padding: clamp(16px, 5vw, 32px);
   padding-bottom: 96px;
 }
+
+@media (min-width: 1024px) {
+  body {
+    padding-left: 25%;
+    padding-right: 25%;
+  }
+}
