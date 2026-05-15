@@ -62,11 +62,12 @@ jobs:
         id: get_db_url
         env:
           NEON_API_KEY: ${{ secrets.NEON_API_KEY }}
+          NEON_PROJECT_ID: ${{ vars.NEON_PROJECT_ID }}
         run: |
           BRANCH_NAME="preview/pr-${{ github.event.number }}-${{ needs.setup.outputs.branch }}"
           ENCODED_BRANCH="${BRANCH_NAME//\//%2F}"
           DB_URL=$(curl -sf \
-            "https://console.neon.tech/api/v2/projects/${{ vars.NEON_PROJECT_ID }}/connection_uri?branch_name=${ENCODED_BRANCH}&role_name=neondb_owner&database_name=neondb" \
+            "https://console.neon.tech/api/v2/projects/${NEON_PROJECT_ID}/connection_uri?branch_name=${ENCODED_BRANCH}&role_name=neondb_owner&database_name=neondb" \
             -H "Authorization: Bearer $NEON_API_KEY" | jq -r '.uri')
           echo "db_url=$DB_URL" >> $GITHUB_OUTPUT
 
