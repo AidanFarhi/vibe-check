@@ -59,6 +59,7 @@ jobs:
           branch_name: preview/pr-${{ github.event.number }}-${{ needs.setup.outputs.branch }}
           api_key: ${{ secrets.NEON_API_KEY }}
           username: neondb_owner
+          database: neondb
 
   review_app:
     name: Deploy PR Preview
