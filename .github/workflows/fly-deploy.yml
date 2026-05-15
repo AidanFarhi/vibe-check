@@ -48,18 +48,27 @@ jobs:
         || github.event.action == 'synchronize')
     runs-on: ubuntu-latest
     outputs:
-      db_url: ${{ steps.create_neon_branch.outputs.db_url }}
-      db_url_with_pooler: ${{ steps.create_neon_branch.outputs.db_url_with_pooler }}
+      db_url: ${{ steps.get_db_url.outputs.db_url }}
     steps:
       - name: Create Neon Branch
-        id: create_neon_branch
+        continue-on-error: true
         uses: neondatabase/create-branch-action@v5
         with:
           project_id: ${{ vars.NEON_PROJECT_ID }}
           branch_name: preview/pr-${{ github.event.number }}-${{ needs.setup.outputs.branch }}
           api_key: ${{ secrets.NEON_API_KEY }}
-          username: neondb_owner
-          database: neondb
+
+      - name: Get connection string
+        id: get_db_url
+        env:
+          NEON_API_KEY: ${{ secrets.NEON_API_KEY }}
+        run: |
+          BRANCH_NAME="preview/pr-${{ github.event.number }}-${{ needs.setup.outputs.branch }}"
+          ENCODED_BRANCH="${BRANCH_NAME//\//%2F}"
+          DB_URL=$(curl -sf \
+            "https://console.neon.tech/api/v2/projects/${{ vars.NEON_PROJECT_ID }}/connection_uri?branch_name=${ENCODED_BRANCH}&role_name=neondb_owner&database_name=neondb" \
+            -H "Authorization: Bearer $NEON_API_KEY" | jq -r '.uri')
+          echo "db_url=$DB_URL" >> $GITHUB_OUTPUT
 
   review_app:
     name: Deploy PR Preview
@@ -78,9 +87,6 @@ jobs:
     steps:
       - name: Get code
         uses: actions/checkout@v4
-
-      - name: Debug Neon db_url
-        run: echo "db_url is set=${{ needs.create_neon_branch.outputs.db_url != '' }}"
 
       - name: Deploy PR app to Fly.io
         id: deploy
