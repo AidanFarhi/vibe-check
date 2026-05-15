@@ -82,6 +82,7 @@ jobs:
         id: deploy
         uses: superfly/fly-pr-review-apps@1.2.1
         with:
+          name: pr-${{ github.event.number }}-vibe-check
           secrets: DATABASE_URL=${{ needs.create_neon_branch.outputs.db_url }}
 
   delete_neon_branch:
@@ -108,3 +109,5 @@ jobs:
 
       - name: Destroy PR app on Fly.io
         uses: superfly/fly-pr-review-apps@1.2.1
+        with:
+          name: pr-${{ github.event.number }}-vibe-check
