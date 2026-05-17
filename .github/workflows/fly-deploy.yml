@@ -38,32 +38,9 @@ jobs:
         id: branch_name
         uses: tj-actions/branch-names@v8
 
-  create_neon_branch:
-    name: Create Neon Branch
-    needs: setup
-    if: |
-      github.event_name == 'pull_request' && (
-        github.event.action == 'opened'
-        || github.event.action == 'reopened'
-        || github.event.action == 'synchronize')
-    runs-on: ubuntu-latest
-    outputs:
-      db_url: ${{ steps.create_branch.outputs.db_url }}
-    steps:
-      - name: Create Neon Branch
-        id: create_branch
-        continue-on-error: true
-        uses: neondatabase/create-branch-action@v5
-        with:
-          project_id: ${{ vars.NEON_PROJECT_ID }}
-          branch_name: preview/pr-${{ github.event.number }}-${{ needs.setup.outputs.branch }}
-          username: vibecheck_user
-          database: vibecheck_db
-          api_key: ${{ secrets.NEON_API_KEY }}
-
   review_app:
     name: Deploy PR Preview
-    needs: [setup, create_neon_branch]
+    needs: setup
     if: |
       github.event_name == 'pull_request' && (
         github.event.action == 'opened'
@@ -76,6 +53,17 @@ jobs:
       name: review
       url: ${{ steps.deploy.outputs.url }}
     steps:
+      - name: Create Neon Branch
+        id: create_branch
+        continue-on-error: true
+        uses: neondatabase/create-branch-action@v5
+        with:
+          project_id: ${{ vars.NEON_PROJECT_ID }}
+          branch_name: preview/pr-${{ github.event.number }}-${{ needs.setup.outputs.branch }}
+          username: vibecheck_user
+          database: vibecheck_db
+          api_key: ${{ secrets.NEON_API_KEY }}
+
       - name: Get code
         uses: actions/checkout@v4
 
@@ -84,7 +72,7 @@ jobs:
         uses: superfly/fly-pr-review-apps@1.2.1
         with:
           name: pr-${{ github.event.number }}-vibe-check
-          secrets: DATABASE_URL=${{ needs.create_neon_branch.outputs.db_url }}
+          secrets: DATABASE_URL=${{ steps.create_branch.outputs.db_url }}
 
   delete_neon_branch:
     name: Delete Neon Branch
