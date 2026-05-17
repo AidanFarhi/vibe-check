@@ -24,7 +24,7 @@ jobs:
     steps:
       - uses: actions/checkout@v4
       - uses: superfly/flyctl-actions/setup-flyctl@master
-      - run: flyctl secrets set DATABASE_URL="${{ secrets.DATABASE_URL }}"
+      - run: flyctl secrets set --stage DATABASE_URL="${{ secrets.DATABASE_URL }}"
       - run: flyctl deploy --remote-only
 
   setup:
