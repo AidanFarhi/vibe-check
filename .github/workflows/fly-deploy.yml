@@ -48,9 +48,10 @@ jobs:
         || github.event.action == 'synchronize')
     runs-on: ubuntu-latest
     outputs:
-      db_url: ${{ steps.get_db_url.outputs.db_url }}
+      db_url: ${{ steps.create_branch.outputs.db_url }}
     steps:
       - name: Create Neon Branch
+        id: create_branch
         continue-on-error: true
         uses: neondatabase/create-branch-action@v5
         with:
@@ -59,19 +60,6 @@ jobs:
           username: vibecheck_user
           database: vibecheck_db
           api_key: ${{ secrets.NEON_API_KEY }}
-
-      - name: Get connection string
-        id: get_db_url
-        env:
-          NEON_API_KEY: ${{ secrets.NEON_API_KEY }}
-          NEON_PROJECT_ID: ${{ vars.NEON_PROJECT_ID }}
-        run: |
-          BRANCH_NAME="preview/pr-${{ github.event.number }}-${{ needs.setup.outputs.branch }}"
-          ENCODED_BRANCH="${BRANCH_NAME//\//%2F}"
-          DB_URL=$(curl -sf \
-            "https://console.neon.tech/api/v2/projects/${NEON_PROJECT_ID}/connection_uri?branch_name=${ENCODED_BRANCH}&role_name=vibecheck_user&database_name=vibecheck_db" \
-            -H "Authorization: Bearer $NEON_API_KEY" | jq -r '.uri')
-          echo "db_url=$DB_URL" >> $GITHUB_OUTPUT
 
   review_app:
     name: Deploy PR Preview
