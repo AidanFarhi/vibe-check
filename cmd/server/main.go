@@ -7,13 +7,15 @@ import (
 	"net/http"
 	"os"
 
-	"github.com/joho/godotenv"
-	_ "github.com/lib/pq"
 	vibedb "vibecheck/db"
+
 	"vibecheck/internal/controller"
 	"vibecheck/internal/middleware"
 	"vibecheck/internal/repo"
 	"vibecheck/internal/service"
+
+	"github.com/joho/godotenv"
+	_ "github.com/lib/pq"
 )
 
 func main() {
