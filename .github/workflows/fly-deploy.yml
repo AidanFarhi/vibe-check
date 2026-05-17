@@ -1,18 +1,102 @@
 # See https://fly.io/docs/app-guides/continuous-deployment-with-github-actions/
 
 name: Fly Deploy
+
 on:
   push:
     branches:
       - main
+  pull_request:
+    types: [opened, reopened, synchronize, closed]
+    branches: [main]
+
+env:
+  FLY_API_TOKEN: ${{ secrets.FLY_API_TOKEN }}
+  FLY_REGION: iad
+  FLY_ORG: personal
+
 jobs:
   deploy:
     name: Deploy app
+    if: github.event_name == 'push'
     runs-on: ubuntu-latest
-    concurrency: deploy-group    # optional: ensure only one action runs at a time
+    concurrency: deploy-group
     steps:
       - uses: actions/checkout@v4
       - uses: superfly/flyctl-actions/setup-flyctl@master
+      - run: flyctl secrets set DATABASE_URL="${{ secrets.DATABASE_URL }}"
       - run: flyctl deploy --remote-only
-        env:
-          FLY_API_TOKEN: ${{ secrets.FLY_API_TOKEN }}
+
+  setup:
+    name: Setup
+    if: github.event_name == 'pull_request'
+    runs-on: ubuntu-latest
+    outputs:
+      branch: ${{ steps.branch_name.outputs.current_branch }}
+    steps:
+      - name: Get branch name
+        id: branch_name
+        uses: tj-actions/branch-names@v8
+
+  review_app:
+    name: Deploy PR Preview
+    needs: setup
+    if: |
+      github.event_name == 'pull_request' && (
+        github.event.action == 'opened'
+        || github.event.action == 'reopened'
+        || github.event.action == 'synchronize')
+    runs-on: ubuntu-latest
+    outputs:
+      url: ${{ steps.deploy.outputs.url }}
+    environment:
+      name: review
+      url: ${{ steps.deploy.outputs.url }}
+    steps:
+      - name: Create Neon Branch
+        id: create_branch
+        continue-on-error: true
+        uses: neondatabase/create-branch-action@v5
+        with:
+          project_id: ${{ vars.NEON_PROJECT_ID }}
+          branch_name: preview/pr-${{ github.event.number }}-${{ needs.setup.outputs.branch }}
+          username: vibecheck_user
+          database: vibecheck_db
+          api_key: ${{ secrets.NEON_API_KEY }}
+
+      - name: Get code
+        uses: actions/checkout@v4
+
+      - name: Deploy PR app to Fly.io
+        id: deploy
+        uses: superfly/fly-pr-review-apps@1.2.1
+        with:
+          name: pr-${{ github.event.number }}-vibe-check
+          secrets: DATABASE_URL=${{ steps.create_branch.outputs.db_url }}
+
+  delete_neon_branch:
+    name: Delete Neon Branch
+    needs: setup
+    if: github.event_name == 'pull_request' && github.event.action == 'closed'
+    runs-on: ubuntu-latest
+    steps:
+      - name: Delete Neon Branch
+        uses: neondatabase/delete-branch-action@v3
+        with:
+          project_id: ${{ vars.NEON_PROJECT_ID }}
+          branch: preview/pr-${{ github.event.number }}-${{ needs.setup.outputs.branch }}
+          api_key: ${{ secrets.NEON_API_KEY }}
+
+  destroy_review_app:
+    name: Destroy PR Preview
+    needs: setup
+    if: github.event_name == 'pull_request' && github.event.action == 'closed'
+    runs-on: ubuntu-latest
+    steps:
+      - name: Get code
+        uses: actions/checkout@v4
+
+      - name: Destroy PR app on Fly.io
+        uses: superfly/fly-pr-review-apps@1.2.1
+        with:
+          name: pr-${{ github.event.number }}-vibe-check
