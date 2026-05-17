@@ -56,6 +56,8 @@ jobs:
         with:
           project_id: ${{ vars.NEON_PROJECT_ID }}
           branch_name: preview/pr-${{ github.event.number }}-${{ needs.setup.outputs.branch }}
+          username: vibecheck_user
+          database: vibecheck_db
           api_key: ${{ secrets.NEON_API_KEY }}
 
       - name: Get connection string
@@ -67,7 +69,7 @@ jobs:
           BRANCH_NAME="preview/pr-${{ github.event.number }}-${{ needs.setup.outputs.branch }}"
           ENCODED_BRANCH="${BRANCH_NAME//\//%2F}"
           DB_URL=$(curl -sf \
-            "https://console.neon.tech/api/v2/projects/${NEON_PROJECT_ID}/connection_uri?branch_name=${ENCODED_BRANCH}&role_name=neondb_owner&database_name=neondb" \
+            "https://console.neon.tech/api/v2/projects/${NEON_PROJECT_ID}/connection_uri?branch_name=${ENCODED_BRANCH}&role_name=vibecheck_user&database_name=vibecheck_db" \
             -H "Authorization: Bearer $NEON_API_KEY" | jq -r '.uri')
           echo "db_url=$DB_URL" >> $GITHUB_OUTPUT
 
