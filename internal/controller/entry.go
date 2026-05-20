@@ -45,7 +45,6 @@ func (c *EntryController) Submit(w http.ResponseWriter, r *http.Request) {
 		if errors.Is(err, domain.ErrDuplicateEntry) {
 			msg = "You've already logged an entry for today."
 		}
-		w.WriteHeader(http.StatusUnprocessableEntity)
 		c.tmpl.ExecuteTemplate(w, "log-modal", view.ModalView{Open: true, Error: msg})
 		return
 	}
