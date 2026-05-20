@@ -483,3 +483,14 @@ textarea::placeholder { color: var(--text-muted); }
 }
 
 .btn-save:hover { opacity: 0.88; }
+
+/* ── Form error ──────────────────────────────────────── */
+.form-error {
+  color: #c44f4f;
+  font-size: 13px;
+  margin-bottom: 16px;
+  padding: 10px 12px;
+  background: rgba(196, 79, 79, 0.1);
+  border: 1px solid rgba(196, 79, 79, 0.2);
+  border-radius: 8px;
+}
