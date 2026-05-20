@@ -42,10 +42,14 @@ func main() {
 
 	userRepo := repo.NewUserRepo(db)
 	sessionRepo := repo.NewSessionRepo(db)
+	entryRepo := repo.NewEntryRepo(db)
+
 	authSvc := service.NewAuth(userRepo, sessionRepo)
+	entrySvc := service.NewEntry(entryRepo)
 
 	home := controller.NewHome(tmpl)
 	auth := controller.NewAuth(tmpl, authSvc)
+	entry := controller.NewEntry(tmpl, entrySvc)
 
 	requireAuth := middleware.RequireAuth(sessionRepo)
 
@@ -59,6 +63,7 @@ func main() {
 	mux.HandleFunc("POST /logout", auth.Logout)
 
 	mux.Handle("GET /", requireAuth(http.HandlerFunc(home.Index)))
+	mux.Handle("POST /entries", requireAuth(http.HandlerFunc(entry.Submit)))
 
 	handler := middleware.Chain(mux)
 	log.Println("listening on :8088")

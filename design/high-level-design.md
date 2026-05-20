@@ -25,6 +25,7 @@ Vibe Check is a personal health tracking tool that lets users log daily wellness
 | Frontend   | HTMX + Go HTML Templates          |
 | Charting   | Chart.js                          |
 | Container  | Docker                            |
+| Deployment | Fly.io                            |
 
 ---
 
@@ -34,13 +35,13 @@ The app follows a Clean Architecture, organized into concentric layers where dep
 
 ```
 ┌──────────────────────────────────────────┐
-│            middleware (HTTP)             │  Request pipeline: logging, error handling
+│            middleware (HTTP)             │  Request pipeline: logging, error handling, auth
 ├──────────────────────────────────────────┤
 │     controller (HTTP) + view (DTOs)      │  Handlers, request parsing, view-models
 ├──────────────────────────────────────────┤
 │            service (use cases)           │  Business logic, orchestration, validation
 ├──────────────────────────────────────────┤
-│       domain (entities + interfaces)     │  Entry entity, EntryRepository interface
+│       domain (entities + interfaces)     │  Entry/User/Session entities, repository interfaces
 ├──────────────────────────────────────────┤
 │            repo (persistence)            │  Postgres implementation of domain interfaces
 └──────────────────────────────────────────┘
@@ -58,7 +59,8 @@ repo ← domain ← service ← controller
 
 **middleware**
 - Sits in front of all controllers in the HTTP pipeline
-- Handles cross-cutting concerns: request logging, panic recovery, error formatting
+- Handles cross-cutting concerns: request logging, panic recovery
+- `RequireAuth` validates the session cookie against the database and injects the user ID into the request context; unauthenticated requests are redirected to `/login`
 - Each middleware is a standard `http.Handler` wrapper; composed on the router
 
 **controller**
@@ -69,17 +71,19 @@ repo ← domain ← service ← controller
 - Owns a `view/` sub-package of plain Go structs that carry data into HTML templates — no business logic, purely a data-transfer shape for the template renderer
 
 **service**
-- Application use cases: `SubmitEntry`, `GetEntries`
-- Enforces business rules (one entry per day, metric range 1–10)
-- Depends on `domain.EntryRepository` interface, never on `repo` directly
+- Application use cases: `SubmitEntry` (implemented), `GetEntries` (planned)
+- Auth use cases: `Register`, `Login`, `Logout`
+- Enforces business rules (one entry per day, metric range 1–10, password strength)
+- Depends on domain repository interfaces, never on `repo` directly
 
 **domain**
-- `Entry` entity with validation rules (metric values 1–10, date required)
-- `EntryRepository` interface — the contract that `service` consumes and `repo` satisfies
+- `Entry`, `User`, `Session` entities with validation rules
+- `EntryRepository`, `UserRepository`, `SessionRepository` interfaces — the contracts that `service` consumes and `repo` satisfies
+- Sentinel errors: `ErrEmailTaken`, `ErrDuplicateEntry`
 - No imports from any other internal package
 
 **repo**
-- Postgres implementation of `domain.EntryRepository`
+- Postgres implementations of all domain repository interfaces
 - No business logic — only data access
 
 ---
@@ -121,14 +125,24 @@ CREATE TABLE entry (
 
 ## Key User Flows
 
-### 1. Submit Daily Entry
-1. User opens the home page; a form pre-filled with today's date is shown.
-2. User sets sliders/inputs for each metric, optionally writes a note for the day, and submits.
-3. HTMX posts to `POST /entries`; the controller calls `SubmitEntry` on the service.
-4. On success, the server returns an updated chart partial via HTMX swap.
-5. On validation error, the form partial is re-rendered with inline errors.
+### 1. Register
+1. User navigates to `/register` and submits email + password.
+2. Server validates (password ≥ 8 chars, email not already taken) and creates the user.
+3. On success, redirects to `/login`. On error, re-renders the register page with an inline message.
 
-### 2. View History / Charts
+### 2. Login / Logout
+1. User submits credentials at `/login`; server verifies password hash and creates a 30-day session cookie.
+2. Authenticated requests carry the cookie; `RequireAuth` middleware validates it on every protected route.
+3. `POST /logout` deletes the session and clears the cookie, redirecting to `/login`.
+
+### 3. Submit Daily Entry
+1. User opens the home page; the "Log Today" button opens a modal with sliders for each metric and an optional note.
+2. User sets sliders (1–10) and optionally writes a note, then submits.
+3. HTMX posts to `POST /entries`; the controller calls `SubmitEntry` on the service.
+4. On success, the modal closes (HTMX swaps in the closed modal state).
+5. On validation error or duplicate-entry (already logged today), the modal re-renders open with an inline error message.
+
+### 4. View History / Charts *(planned)*
 1. User selects a date range (default: last 30 days).
 2. HTMX fires `GET /entries?from=...&to=...`; the controller calls `GetEntries` on the service.
 3. Server renders a line-chart partial (using Chart.js, driven by data embedded in the HTML).
@@ -141,37 +155,64 @@ CREATE TABLE entry (
 vibe-check/
 ├── cmd/
 │   └── server/
-│       └── main.go            # Entry point, wires dependencies
+│       └── main.go                    # Entry point, wires dependencies
 ├── internal/
 │   ├── middleware/
-│   │   └── middleware.go      # Logging, recovery, error handler
+│   │   └── middleware.go              # Logging, recovery, RequireAuth
 │   ├── controller/
 │   │   ├── view/
-│   │   │   └── entry.go       # View-model structs for templates
-│   │   ├── home.go            # Home page handler
-│   │   └── entry.go           # Entry submit / history handlers
+│   │   │   └── entry.go              # View-model structs for templates
+│   │   ├── auth.go                   # Register, Login, Logout handlers
+│   │   ├── home.go                   # Home page handler
+│   │   └── entry.go                  # Entry submit handler
 │   ├── service/
-│   │   └── entry.go           # SubmitEntry, GetEntries use cases
+│   │   ├── auth.go                   # Register, Login, Logout use cases
+│   │   └── entry.go                  # SubmitEntry use case
 │   ├── domain/
-│   │   ├── entry.go           # Entry entity + validation rules
-│   │   └── repository.go      # EntryRepository interface
+│   │   ├── entry.go                  # Entry entity + validation
+│   │   ├── user.go                   # User entity + validation
+│   │   ├── session.go                # Session entity
+│   │   └── repository.go             # EntryRepository, UserRepository, SessionRepository interfaces + sentinel errors
 │   └── repo/
-│       └── entry.go           # Postgres implementation of EntryRepository
+│       ├── entry.go                  # Postgres EntryRepository
+│       ├── user.go                   # Postgres UserRepository
+│       └── session.go                # Postgres SessionRepository
 ├── db/
-│   ├── migrations/            # Numbered SQL migration files (up/down)
-│   │   ├── 001_create_entries.up.sql
-│   │   └── 001_create_entries.down.sql
-│   └── migrate.go             # Migration runner (golang-migrate or custom)
+│   ├── migrations/
+│   │   ├── 001_create_user.up.sql
+│   │   ├── 001_create_user.down.sql
+│   │   ├── 002_create_session.up.sql
+│   │   ├── 002_create_session.down.sql
+│   │   ├── 003_create_entry.up.sql
+│   │   └── 003_create_entry.down.sql
+│   ├── setup/                        # One-time DB role/database creation scripts
+│   └── migrate.go                    # Migration runner
 ├── web/
 │   ├── templates/
 │   │   ├── base.html
-│   │   └── pages/
-│   │       └── home.html
+│   │   ├── pages/
+│   │   │   ├── home.html
+│   │   │   ├── login.html
+│   │   │   └── register.html
+│   │   └── components/
+│   │       ├── chart-card.html
+│   │       ├── log-button.html
+│   │       ├── log-modal.html
+│   │       ├── metric-tiles.html
+│   │       ├── metrics-card.html
+│   │       ├── navbar.html
+│   │       ├── note-card.html
+│   │       ├── page-header.html
+│   │       ├── recent-strip.html
+│   │       └── today-card.html
 │   ├── css/
+│   │   ├── base.css
+│   │   ├── auth.css
+│   │   └── home.css
 │   └── js/
-├── Dockerfile
-└── design-doc/
-    └── high-level-design.md
+│       └── home.js
+├── design/
+│   └── high-level-design.md
+├── fly.toml
+└── Dockerfile
 ```
-
----
