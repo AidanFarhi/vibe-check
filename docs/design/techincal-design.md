@@ -1,4 +1,4 @@
-# Vibe Check — High-Level Design
+# Vibe Check — Techinical Design
 
 ## Overview
 
