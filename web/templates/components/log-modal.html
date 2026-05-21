@@ -1,7 +1,7 @@
 {{ define "log-modal" }}
 <div class="modal-overlay{{ if .Open }} open{{ end }}" id="modalOverlay" onclick="handleOverlayClick(event)">
     <div class="modal">
-        <div class="modal-handle"></div>
+        <div class="modal-handle" onclick="closeModal()" style="cursor:pointer"></div>
         <div class="modal-title">How are you today?</div>
 
         <form hx-post="/entries" hx-target="#modalOverlay" hx-swap="outerHTML">
