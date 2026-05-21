@@ -8,3 +8,6 @@
 
 ## Coding Guidelines
 @docs/guides/coding-guidelines.md
+
+## PR Guidelines
+@docs/guides/pr-guidelines.md
