@@ -73,6 +73,15 @@ input[type="password"] {
 input[type="email"]:focus,
 input[type="password"]:focus { border-color: var(--accent); }
 
+input:-webkit-autofill,
+input:-webkit-autofill:hover,
+input:-webkit-autofill:focus {
+  -webkit-box-shadow: 0 0 0 1000px var(--surface-2) inset;
+  -webkit-text-fill-color: var(--text);
+  caret-color: var(--text);
+  transition: background-color 0s 600000s;
+}
+
 input::placeholder { color: var(--text-muted); }
 
 .btn-primary {
