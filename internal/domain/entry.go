@@ -17,6 +17,11 @@ type Entry struct {
 	Sleep      int
 	Note       string
 	CreatedAt  time.Time
+	Score      float64
+}
+
+func (e *Entry) computeScore() float64 {
+	return float64(e.Happiness+e.Energy+e.Sleep+(11-e.Depression)+(11-e.Pain)) / 5.0
 }
 
 func NewEntry(userID string, date time.Time, depression, happiness, pain, energy, sleep int, note string) (*Entry, error) {
@@ -40,7 +45,7 @@ func NewEntry(userID string, date time.Time, depression, happiness, pain, energy
 			return nil, fmt.Errorf("%s must be between 1 and 10", m.name)
 		}
 	}
-	return &Entry{
+	e := &Entry{
 		UserID:     userID,
 		Date:       date,
 		Depression: depression,
@@ -49,5 +54,7 @@ func NewEntry(userID string, date time.Time, depression, happiness, pain, energy
 		Energy:     energy,
 		Sleep:      sleep,
 		Note:       note,
-	}, nil
+	}
+	e.Score = e.computeScore()
+	return e, nil
 }

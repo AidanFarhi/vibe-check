@@ -6,6 +6,7 @@ import (
 	"log"
 	"net/http"
 	"os"
+	"time"
 
 	vibedb "vibecheck/db"
 
@@ -36,7 +37,10 @@ func main() {
 		log.Fatal("migrate:", err)
 	}
 
-	tmpl := template.Must(template.New("").ParseGlob("web/templates/*.html"))
+	tmpl := template.Must(template.New("").Funcs(template.FuncMap{
+		"mul":        func(a, b int) int { return a * b },
+		"timeFormat": func(t time.Time) string { return t.Format("3:04 PM") },
+	}).ParseGlob("web/templates/*.html"))
 	template.Must(tmpl.ParseGlob("web/templates/pages/*.html"))
 	template.Must(tmpl.ParseGlob("web/templates/components/*.html"))
 
@@ -47,7 +51,7 @@ func main() {
 	authSvc := service.NewAuth(userRepo, sessionRepo)
 	entrySvc := service.NewEntry(entryRepo)
 
-	home := controller.NewHome(tmpl)
+	home := controller.NewHome(tmpl, entrySvc)
 	auth := controller.NewAuth(tmpl, authSvc)
 	entry := controller.NewEntry(tmpl, entrySvc)
 
