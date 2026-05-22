@@ -30,7 +30,7 @@ func (c *EntryController) Submit(w http.ResponseWriter, r *http.Request) {
 		return v
 	}
 
-	_, err := c.entrySvc.SubmitEntry(
+	entry, err := c.entrySvc.SubmitEntry(
 		userID,
 		time.Now(),
 		parseInt("depression"),
@@ -49,5 +49,5 @@ func (c *EntryController) Submit(w http.ResponseWriter, r *http.Request) {
 		return
 	}
 
-	c.tmpl.ExecuteTemplate(w, "log-modal", view.ModalView{})
+	c.tmpl.ExecuteTemplate(w, "entry-success", view.HomeView{TodayEntry: entry})
 }

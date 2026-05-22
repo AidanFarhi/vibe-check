@@ -1,0 +1,1 @@
+ALTER TABLE entry DROP COLUMN score;

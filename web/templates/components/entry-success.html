@@ -1,0 +1,8 @@
+{{ define "entry-success" }}
+{{ template "log-modal" . }}
+<div id="today-display" hx-swap-oob="true">
+    {{ template "today-card" . }}
+    {{ template "metric-tiles" . }}
+    {{ if .TodayEntry.Note }}{{ template "note-card" . }}{{ end }}
+</div>
+{{ end }}

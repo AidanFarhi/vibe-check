@@ -9,5 +9,6 @@ FROM alpine:latest
 WORKDIR /app
 COPY --from=builder /app/server .
 COPY web/ web/
+COPY db/migrations/ db/migrations/
 EXPOSE 8088
 CMD ["./server"]

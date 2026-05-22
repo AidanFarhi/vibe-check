@@ -2,8 +2,8 @@
 <div class="card today-card" id="todayCard">
     <div>
         <div class="card-title" id="todayTitle">Today's Score</div>
-        <div class="today-score" id="todayScore">6.2</div>
-        <div class="today-label" id="todayLabel">Moderate — up from yesterday</div>
+        <div class="today-score" id="todayScore">{{ printf "%.1f" .TodayEntry.Score }}</div>
+        <div class="today-label" id="todayLabel">Moderate - up from yesterday</div>
     </div>
     <div class="today-streak" id="todayStreak">
         <strong>12</strong>

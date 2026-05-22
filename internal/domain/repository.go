@@ -21,4 +21,5 @@ type SessionRepository interface {
 
 type EntryRepository interface {
 	CreateEntry(e *Entry) (*Entry, error)
+	GetTodayEntry(userID string, date time.Time) (*Entry, error)
 }

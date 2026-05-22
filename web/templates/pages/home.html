@@ -8,9 +8,15 @@
 
 {{ define "content" }}
 {{ template "page-header" . }}
-{{ template "today-card" . }}
-{{ template "metric-tiles" . }}
-{{ template "note-card" . }}
+<div id="today-display">
+{{ if .TodayEntry }}
+    {{ template "today-card" . }}
+    {{ template "metric-tiles" . }}
+    {{ if .TodayEntry.Note }}{{ template "note-card" . }}{{ end }}
+{{ else }}
+    {{ template "no-entry-prompt" . }}
+{{ end }}
+</div>
 {{ template "chart-card" . }}
 {{ template "log-button" . }}
 {{ template "log-modal" . }}
