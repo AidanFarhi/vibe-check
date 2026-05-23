@@ -157,8 +157,11 @@ function openModal() {
 }
 
 function closeModal() {
-  document.getElementById('modalOverlay').classList.remove('open');
-  document.body.style.overflow = '';
+  const overlay = document.getElementById('modalOverlay');
+  overlay.classList.remove('open');
+  overlay.addEventListener('transitionend', () => {
+    document.body.style.overflow = '';
+  }, { once: true });
 }
 
 function handleOverlayClick(e) {
