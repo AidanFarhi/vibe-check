@@ -28,7 +28,7 @@ func (a *Auth) RegisterPage(w http.ResponseWriter, r *http.Request) {
 }
 
 func (a *Auth) Register(w http.ResponseWriter, r *http.Request) {
-	err := a.authSvc.Register(r.FormValue("email"), r.FormValue("password"))
+	token, err := a.authSvc.Register(r.FormValue("email"), r.FormValue("password"))
 	if err != nil {
 		msg := "Registration failed. Please try again."
 		switch {
@@ -41,7 +41,15 @@ func (a *Auth) Register(w http.ResponseWriter, r *http.Request) {
 		a.render(w, "register", authView{Error: msg})
 		return
 	}
-	http.Redirect(w, r, "/login", http.StatusSeeOther)
+	http.SetCookie(w, &http.Cookie{
+		Name:     "session",
+		Value:    token,
+		Path:     "/",
+		Expires:  time.Now().Add(30 * 24 * time.Hour),
+		HttpOnly: true,
+		SameSite: http.SameSiteStrictMode,
+	})
+	http.Redirect(w, r, "/", http.StatusSeeOther)
 }
 
 func (a *Auth) LoginPage(w http.ResponseWriter, r *http.Request) {

@@ -23,20 +23,31 @@ func NewAuth(users domain.UserRepository, sessions domain.SessionRepository) *Au
 	return &AuthService{users: users, sessions: sessions}
 }
 
-func (s *AuthService) Register(email, password string) error {
+func (s *AuthService) Register(email, password string) (string, error) {
 	if len(password) < 8 {
-		return ErrWeakPassword
+		return "", ErrWeakPassword
 	}
 	hash, err := bcrypt.GenerateFromPassword([]byte(password), bcrypt.DefaultCost)
 	if err != nil {
-		return err
+		return "", err
 	}
 	u, err := domain.NewUser(email, string(hash))
 	if err != nil {
-		return err
+		return "", err
 	}
-	_, err = s.users.CreateUser(u)
-	return err
+	user, err := s.users.CreateUser(u)
+	if err != nil {
+		return "", err
+	}
+	b := make([]byte, 32)
+	if _, err := rand.Read(b); err != nil {
+		return "", err
+	}
+	token := hex.EncodeToString(b)
+	if _, err = s.sessions.CreateSession(user.ID, token, time.Now().Add(30*24*time.Hour)); err != nil {
+		return "", err
+	}
+	return token, nil
 }
 
 func (s *AuthService) Login(email, password string) (string, error) {
