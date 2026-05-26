@@ -18,6 +18,13 @@ func (s *EntryService) GetTodayEntry(userID string, date time.Time) (*domain.Ent
 	return s.entries.GetTodayEntry(userID, date)
 }
 
+func (s *EntryService) GetRecentEntries(userID string, days int) ([]domain.Entry, error) {
+	now := time.Now()
+	today := time.Date(now.Year(), now.Month(), now.Day(), 0, 0, 0, 0, time.UTC)
+	from := today.AddDate(0, 0, -(days - 1))
+	return s.entries.GetEntriesInRange(userID, from, today)
+}
+
 func (s *EntryService) SubmitEntry(userID string, date time.Time, depression, happiness, pain, energy, sleep int, note string) (*domain.Entry, error) {
 	e, err := domain.NewEntry(userID, date, depression, happiness, pain, energy, sleep, note)
 	if err != nil {

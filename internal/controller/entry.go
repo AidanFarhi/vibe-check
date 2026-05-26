@@ -5,7 +5,6 @@ import (
 	"html/template"
 	"net/http"
 	"strconv"
-	"time"
 
 	"vibecheck/internal/controller/view"
 	"vibecheck/internal/domain"
@@ -32,7 +31,7 @@ func (c *EntryController) Submit(w http.ResponseWriter, r *http.Request) {
 
 	entry, err := c.entrySvc.SubmitEntry(
 		userID,
-		time.Now(),
+		localDateUTC(),
 		parseInt("depression"),
 		parseInt("happiness"),
 		parseInt("pain"),
