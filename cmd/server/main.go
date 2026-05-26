@@ -11,6 +11,7 @@ import (
 	vibedb "vibecheck/db"
 
 	"vibecheck/internal/controller"
+	"vibecheck/internal/controller/view"
 	"vibecheck/internal/middleware"
 	"vibecheck/internal/repo"
 	"vibecheck/internal/service"
@@ -38,8 +39,13 @@ func main() {
 	}
 
 	tmpl := template.Must(template.New("").Funcs(template.FuncMap{
-		"mul":        func(a, b int) int { return a * b },
-		"timeFormat": func(t time.Time) string { return t.Format("3:04 PM") },
+		"mul":           func(a, b int) int { return a * b },
+		"timeFormat":    func(t time.Time) string { return t.Format("3:04 PM") },
+		"chartLinePath": view.ChartLinePath,
+		"chartAreaPath": view.ChartAreaPath,
+		"chartHasDot":   view.ChartHasDot,
+		"chartDotX":     view.ChartDotX,
+		"chartDotY":     view.ChartDotY,
 	}).ParseGlob("web/templates/*.html"))
 	template.Must(tmpl.ParseGlob("web/templates/pages/*.html"))
 	template.Must(tmpl.ParseGlob("web/templates/components/*.html"))

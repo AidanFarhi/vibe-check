@@ -2,15 +2,28 @@ package view
 
 import "vibecheck/internal/domain"
 
-// ModalView is passed to the log-modal template.
-// Open controls whether the overlay is visible; Error shows inline validation feedback.
 type ModalView struct {
 	Open  bool
 	Error string
 }
 
-// HomeView is passed to the home page and entry-success templates.
+// ChartDay holds data for a single day slot in the 7-day chart.
+// Each metric pointer is nil when no entry was logged for that day.
+type ChartDay struct {
+	Label      string
+	Depression *int
+	Happiness  *int
+	Pain       *int
+	Energy     *int
+	Sleep      *int
+}
+
+type ChartView struct {
+	Days []ChartDay
+}
+
 type HomeView struct {
 	ModalView
 	TodayEntry *domain.Entry
+	Chart      ChartView
 }

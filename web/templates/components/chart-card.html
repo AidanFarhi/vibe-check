@@ -13,8 +13,7 @@
         <button class="pill"        data-metric="all"        onclick="setMetricPill(this)">All</button>
         <button class="pill active" data-metric="energy"     onclick="setMetricPill(this)">Energy</button>
         <button class="pill"        data-metric="sleep"      onclick="setMetricPill(this)">Sleep</button>
-        <button class="pill"        data-metric="sadness"    onclick="setMetricPill(this)">Sadness</button>
-        <button class="pill"        data-metric="anger"      onclick="setMetricPill(this)">Anger</button>
+        <button class="pill"        data-metric="happiness"  onclick="setMetricPill(this)">Happiness</button>
         <button class="pill"        data-metric="pain"       onclick="setMetricPill(this)">Pain</button>
         <button class="pill"        data-metric="depression" onclick="setMetricPill(this)">Depression</button>
     </div>
@@ -22,8 +21,7 @@
     <div class="chart-legend" id="chartLegend" style="display:none">
         <div class="legend-item"><div class="legend-dot" style="background:#4ecfb0"></div>Energy</div>
         <div class="legend-item"><div class="legend-dot" style="background:#38b8a0"></div>Sleep</div>
-        <div class="legend-item"><div class="legend-dot" style="background:#d07085"></div>Sadness</div>
-        <div class="legend-item"><div class="legend-dot" style="background:#c44f4f"></div>Anger</div>
+        <div class="legend-item"><div class="legend-dot" style="background:#7eb8f7"></div>Happiness</div>
         <div class="legend-item"><div class="legend-dot" style="background:#d98878"></div>Pain</div>
         <div class="legend-item"><div class="legend-dot" style="background:#a84560"></div>Depression</div>
     </div>
@@ -35,52 +33,53 @@
             <line x1="0" y1="74" x2="300" y2="74" stroke="#1a1d27" stroke-width="1"/>
 
             <g class="mline" id="g-energy" data-metric="energy">
-                <path class="mline-area" d="M0,34 L50,50 L100,26 L150,42 L200,34 L250,58 L300,26 L300,95 L0,95 Z" fill="#4ecfb0" fill-opacity="0.07"/>
-                <polyline points="0,34 50,50 100,26 150,42 200,34 250,58 300,26" fill="none" stroke="#4ecfb0" stroke-width="2" stroke-linejoin="round" stroke-linecap="round"/>
-                <circle cx="300" cy="26" r="4" fill="#4ecfb0" fill-opacity="0.2"/>
-                <circle cx="300" cy="26" r="2.5" fill="#4ecfb0"/>
+                <path class="mline-area" d="{{ chartAreaPath .Chart.Days "energy" }}" fill="#4ecfb0" fill-opacity="0.07"/>
+                <path d="{{ chartLinePath .Chart.Days "energy" }}" fill="none" stroke="#4ecfb0" stroke-width="2" stroke-linejoin="round" stroke-linecap="round"/>
+                {{ if chartHasDot .Chart.Days "energy" }}
+                <circle cx="{{ printf "%.1f" (chartDotX .Chart.Days "energy") }}" cy="{{ printf "%.1f" (chartDotY .Chart.Days "energy") }}" r="4" fill="#4ecfb0" fill-opacity="0.2"/>
+                <circle cx="{{ printf "%.1f" (chartDotX .Chart.Days "energy") }}" cy="{{ printf "%.1f" (chartDotY .Chart.Days "energy") }}" r="2.5" fill="#4ecfb0"/>
+                {{ end }}
             </g>
 
             <g class="mline" id="g-sleep" data-metric="sleep" style="opacity:0">
-                <path class="mline-area" d="M0,34 L50,42 L100,26 L150,34 L200,42 L250,50 L300,34 L300,95 L0,95 Z" fill="#38b8a0" fill-opacity="0.07"/>
-                <polyline points="0,34 50,42 100,26 150,34 200,42 250,50 300,34" fill="none" stroke="#38b8a0" stroke-width="2" stroke-linejoin="round" stroke-linecap="round"/>
-                <circle cx="300" cy="34" r="4" fill="#38b8a0" fill-opacity="0.2"/>
-                <circle cx="300" cy="34" r="2.5" fill="#38b8a0"/>
+                <path class="mline-area" d="{{ chartAreaPath .Chart.Days "sleep" }}" fill="#38b8a0" fill-opacity="0.07"/>
+                <path d="{{ chartLinePath .Chart.Days "sleep" }}" fill="none" stroke="#38b8a0" stroke-width="2" stroke-linejoin="round" stroke-linecap="round"/>
+                {{ if chartHasDot .Chart.Days "sleep" }}
+                <circle cx="{{ printf "%.1f" (chartDotX .Chart.Days "sleep") }}" cy="{{ printf "%.1f" (chartDotY .Chart.Days "sleep") }}" r="4" fill="#38b8a0" fill-opacity="0.2"/>
+                <circle cx="{{ printf "%.1f" (chartDotX .Chart.Days "sleep") }}" cy="{{ printf "%.1f" (chartDotY .Chart.Days "sleep") }}" r="2.5" fill="#38b8a0"/>
+                {{ end }}
             </g>
 
-            <g class="mline" id="g-sadness" data-metric="sadness" style="opacity:0">
-                <path class="mline-area" d="M0,66 L50,50 L100,74 L150,58 L200,66 L250,42 L300,66 L300,95 L0,95 Z" fill="#d07085" fill-opacity="0.07"/>
-                <polyline points="0,66 50,50 100,74 150,58 200,66 250,42 300,66" fill="none" stroke="#d07085" stroke-width="2" stroke-linejoin="round" stroke-linecap="round"/>
-                <circle cx="300" cy="66" r="4" fill="#d07085" fill-opacity="0.2"/>
-                <circle cx="300" cy="66" r="2.5" fill="#d07085"/>
-            </g>
-
-            <g class="mline" id="g-anger" data-metric="anger" style="opacity:0">
-                <path class="mline-area" d="M0,74 L50,66 L100,82 L150,58 L200,74 L250,50 L300,74 L300,95 L0,95 Z" fill="#c44f4f" fill-opacity="0.07"/>
-                <polyline points="0,74 50,66 100,82 150,58 200,74 250,50 300,74" fill="none" stroke="#c44f4f" stroke-width="2" stroke-linejoin="round" stroke-linecap="round"/>
-                <circle cx="300" cy="74" r="4" fill="#c44f4f" fill-opacity="0.2"/>
-                <circle cx="300" cy="74" r="2.5" fill="#c44f4f"/>
+            <g class="mline" id="g-happiness" data-metric="happiness" style="opacity:0">
+                <path class="mline-area" d="{{ chartAreaPath .Chart.Days "happiness" }}" fill="#7eb8f7" fill-opacity="0.07"/>
+                <path d="{{ chartLinePath .Chart.Days "happiness" }}" fill="none" stroke="#7eb8f7" stroke-width="2" stroke-linejoin="round" stroke-linecap="round"/>
+                {{ if chartHasDot .Chart.Days "happiness" }}
+                <circle cx="{{ printf "%.1f" (chartDotX .Chart.Days "happiness") }}" cy="{{ printf "%.1f" (chartDotY .Chart.Days "happiness") }}" r="4" fill="#7eb8f7" fill-opacity="0.2"/>
+                <circle cx="{{ printf "%.1f" (chartDotX .Chart.Days "happiness") }}" cy="{{ printf "%.1f" (chartDotY .Chart.Days "happiness") }}" r="2.5" fill="#7eb8f7"/>
+                {{ end }}
             </g>
 
             <g class="mline" id="g-pain" data-metric="pain" style="opacity:0">
-                <path class="mline-area" d="M0,82 L50,74 L100,66 L150,74 L200,82 L250,66 L300,74 L300,95 L0,95 Z" fill="#d98878" fill-opacity="0.07"/>
-                <polyline points="0,82 50,74 100,66 150,74 200,82 250,66 300,74" fill="none" stroke="#d98878" stroke-width="2" stroke-linejoin="round" stroke-linecap="round"/>
-                <circle cx="300" cy="74" r="4" fill="#d98878" fill-opacity="0.2"/>
-                <circle cx="300" cy="74" r="2.5" fill="#d98878"/>
+                <path class="mline-area" d="{{ chartAreaPath .Chart.Days "pain" }}" fill="#d98878" fill-opacity="0.07"/>
+                <path d="{{ chartLinePath .Chart.Days "pain" }}" fill="none" stroke="#d98878" stroke-width="2" stroke-linejoin="round" stroke-linecap="round"/>
+                {{ if chartHasDot .Chart.Days "pain" }}
+                <circle cx="{{ printf "%.1f" (chartDotX .Chart.Days "pain") }}" cy="{{ printf "%.1f" (chartDotY .Chart.Days "pain") }}" r="4" fill="#d98878" fill-opacity="0.2"/>
+                <circle cx="{{ printf "%.1f" (chartDotX .Chart.Days "pain") }}" cy="{{ printf "%.1f" (chartDotY .Chart.Days "pain") }}" r="2.5" fill="#d98878"/>
+                {{ end }}
             </g>
 
             <g class="mline" id="g-depression" data-metric="depression" style="opacity:0">
-                <path class="mline-area" d="M0,66 L50,58 L100,74 L150,66 L200,74 L250,50 L300,66 L300,95 L0,95 Z" fill="#a84560" fill-opacity="0.07"/>
-                <polyline points="0,66 50,58 100,74 150,66 200,74 250,50 300,66" fill="none" stroke="#a84560" stroke-width="2" stroke-linejoin="round" stroke-linecap="round"/>
-                <circle cx="300" cy="66" r="4" fill="#a84560" fill-opacity="0.2"/>
-                <circle cx="300" cy="66" r="2.5" fill="#a84560"/>
+                <path class="mline-area" d="{{ chartAreaPath .Chart.Days "depression" }}" fill="#a84560" fill-opacity="0.07"/>
+                <path d="{{ chartLinePath .Chart.Days "depression" }}" fill="none" stroke="#a84560" stroke-width="2" stroke-linejoin="round" stroke-linecap="round"/>
+                {{ if chartHasDot .Chart.Days "depression" }}
+                <circle cx="{{ printf "%.1f" (chartDotX .Chart.Days "depression") }}" cy="{{ printf "%.1f" (chartDotY .Chart.Days "depression") }}" r="4" fill="#a84560" fill-opacity="0.2"/>
+                <circle cx="{{ printf "%.1f" (chartDotX .Chart.Days "depression") }}" cy="{{ printf "%.1f" (chartDotY .Chart.Days "depression") }}" r="2.5" fill="#a84560"/>
+                {{ end }}
             </g>
         </svg>
 
         <div class="chart-days">
-            <span>Fri</span><span>Sat</span><span>Sun</span>
-            <span>Mon</span><span>Tue</span><span>Wed</span>
-            <span class="today">Today</span>
+            {{ range .Chart.Days }}<span{{ if eq .Label "Today" }} class="today"{{ end }}>{{ .Label }}</span>{{ end }}
         </div>
     </div>
 

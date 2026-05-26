@@ -21,11 +21,10 @@ const SCORE_THEMES = [
 // ── Radar chart ──────────────────────────────────────
 const RADAR_METRICS = [
   { label: 'Energy',     value: 8, color: '#4ecfb0', angle: -90 },
-  { label: 'Sleep',      value: 7, color: '#38b8a0', angle: -30 },
-  { label: 'Sadness',    value: 3, color: '#d07085', angle:  30 },
-  { label: 'Depression', value: 3, color: '#a84560', angle:  90 },
-  { label: 'Pain',       value: 2, color: '#d98878', angle: 150 },
-  { label: 'Anger',      value: 2, color: '#c44f4f', angle: 210 },
+  { label: 'Sleep',      value: 7, color: '#38b8a0', angle: -18 },
+  { label: 'Happiness',  value: 6, color: '#7eb8f7', angle:  54 },
+  { label: 'Pain',       value: 2, color: '#d98878', angle: 126 },
+  { label: 'Depression', value: 3, color: '#a84560', angle: 198 },
 ];
 const CX = 160, CY = 95, R = 60;
 
