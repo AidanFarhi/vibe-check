@@ -26,6 +26,9 @@
 - `service` never imports `repo` directly — only domain interfaces
 - `repo` never contains business logic — data access only
 
+## Placing New Code
+Before writing any new code, analyze the existing architecture and patterns to determine the correct layer. Infer placement from the layer responsibilities in the technical design and the rules above — never guess or default to the nearest layer.
+
 ## HTTP Handlers
 - Use `http.StatusSeeOther` (303) for all POST-redirect-GET flows
 - Parse form values with `r.FormValue()` — no third-party form libraries
