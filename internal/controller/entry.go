@@ -48,5 +48,13 @@ func (c *EntryController) Submit(w http.ResponseWriter, r *http.Request) {
 		return
 	}
 
-	c.tmpl.ExecuteTemplate(w, "entry-success", view.HomeView{TodayEntry: entry})
+	entries, err := c.entrySvc.GetRecentEntries(userID, 7)
+	if err != nil {
+		http.Error(w, "Internal Server Error", http.StatusInternalServerError)
+		return
+	}
+	c.tmpl.ExecuteTemplate(w, "entry-success", view.HomeView{
+		TodayEntry: entry,
+		Chart:      buildChartView(entries),
+	})
 }

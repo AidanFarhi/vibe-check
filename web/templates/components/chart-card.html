@@ -1,5 +1,10 @@
 {{ define "chart-card" }}
-<div class="card chart-card">
+<div class="card chart-card" id="chart-card">
+    {{ template "chart-card-body" . }}
+</div>
+{{ end }}
+
+{{ define "chart-card-body" }}
 
     <div class="time-filter">
         <button class="time-btn active" data-period="7D"  onclick="setTime(this)">7D</button>
