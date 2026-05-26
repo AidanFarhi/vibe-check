@@ -1,5 +1,4 @@
 // ── Score color shift ────────────────────────────────
-const SCORE = 6.2;
 const SCORE_THEMES = [
   { min: 7.5, bg: '#0d1e18', border: '#1a3028', scoreColor: '#4ecfb0', labelColor: '#3a6a4a', streakColor: '#2a4a38' },
   { min: 4.5, bg: '#101828', border: '#1a2540', scoreColor: '#7aadff', labelColor: '#3a5a80', streakColor: '#2d4060' },
@@ -7,16 +6,21 @@ const SCORE_THEMES = [
   { min: 0,   bg: '#1e0e10', border: '#3a1420', scoreColor: '#c44f4f', labelColor: '#6a2a2a', streakColor: '#4a1a20' },
 ];
 
-(function applyScoreTheme() {
-  const theme = SCORE_THEMES.find(t => SCORE >= t.min);
+function applyScoreTheme() {
   const card = document.getElementById('todayCard');
+  if (!card) return;
+  const score = parseFloat(document.getElementById('todayScore').textContent);
+  const theme = SCORE_THEMES.find(t => score >= t.min);
   card.style.background = theme.bg;
   card.style.borderColor = theme.border;
   document.getElementById('todayScore').style.color = theme.scoreColor;
   document.getElementById('todayLabel').style.color = theme.labelColor;
   document.getElementById('todayTitle').style.color = theme.streakColor;
   document.querySelector('.today-streak').style.color = theme.streakColor;
-})();
+}
+
+applyScoreTheme();
+document.addEventListener('htmx:afterSettle', applyScoreTheme);
 
 // ── Radar chart ──────────────────────────────────────
 const RADAR_METRICS = [
