@@ -5,4 +5,7 @@
     {{ template "metric-tiles" . }}
     {{ if .TodayEntry.Note }}{{ template "note-card" . }}{{ end }}
 </div>
+<div id="chart-card" class="card chart-card" hx-swap-oob="true">
+    {{ template "chart-card-body" . }}
+</div>
 {{ end }}

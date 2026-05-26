@@ -17,7 +17,11 @@ Example: `UI updates: modal handle close, autofill fix, and docs consolidation`
 ## Test plan
 - [ ] <specific step to verify each change works>
 - [ ] <cover both the happy path and any edge cases touched>
+
+Closes #<issue number>
 ```
+
+Include the `Closes #<issue number>` line only when the PR resolves a GitHub issue. Omit it otherwise.
 
 ### Summary rules
 - One bullet per logical change — don't group unrelated changes into one line
