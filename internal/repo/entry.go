@@ -19,7 +19,7 @@ func (r *EntryRepo) CreateEntry(e *domain.Entry) (*domain.Entry, error) {
 	err := r.db.QueryRow(
 		`INSERT INTO entry (user_id, date, depression, happiness, pain, energy, sleep, note, score)
 		 VALUES ($1, $2, $3, $4, $5, $6, $7, $8, $9)
-		 RETURNING id, user_id, date, depression, happiness, pain, energy, sleep, note, score, created_at`,
+		 RETURNING id, user_id, date, depression, happiness, pain, energy, sleep, COALESCE(note, ''), score, created_at`,
 		e.UserID, e.Date, e.Depression, e.Happiness, e.Pain, e.Energy, e.Sleep, e.Note, e.Score,
 	).Scan(&out.ID, &out.UserID, &out.Date, &out.Depression, &out.Happiness, &out.Pain, &out.Energy, &out.Sleep, &out.Note, &out.Score, &out.CreatedAt)
 	if err != nil {
@@ -34,7 +34,7 @@ func (r *EntryRepo) CreateEntry(e *domain.Entry) (*domain.Entry, error) {
 
 func (r *EntryRepo) GetEntriesInRange(userID string, from, to time.Time) ([]domain.Entry, error) {
 	rows, err := r.db.Query(
-		`SELECT id, user_id, date, depression, happiness, pain, energy, sleep, note, score, created_at
+		`SELECT id, user_id, date, depression, happiness, pain, energy, sleep, COALESCE(note, ''), score, created_at
 		 FROM entry WHERE user_id = $1 AND date BETWEEN $2 AND $3 ORDER BY date ASC`,
 		userID, from, to,
 	)
@@ -99,7 +99,7 @@ func (r *EntryRepo) GetStreak(userID string) (int, error) {
 func (r *EntryRepo) GetTodayEntry(userID string, date time.Time) (*domain.Entry, error) {
 	out := &domain.Entry{}
 	err := r.db.QueryRow(
-		`SELECT id, user_id, date, depression, happiness, pain, energy, sleep, note, score, created_at
+		`SELECT id, user_id, date, depression, happiness, pain, energy, sleep, COALESCE(note, ''), score, created_at
 		 FROM entry WHERE user_id = $1 AND date = $2`,
 		userID, date,
 	).Scan(&out.ID, &out.UserID, &out.Date, &out.Depression, &out.Happiness, &out.Pain, &out.Energy, &out.Sleep, &out.Note, &out.Score, &out.CreatedAt)
