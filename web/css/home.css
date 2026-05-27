@@ -293,6 +293,11 @@ header {
 
 .mline { transition: opacity 0.2s; }
 
+.chart-svg circle {
+  transform-box: fill-box;
+  transform-origin: center;
+}
+
 .radar-svg {
   width: 100%;
   height: 190px;
