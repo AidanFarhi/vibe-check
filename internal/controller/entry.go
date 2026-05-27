@@ -53,8 +53,14 @@ func (c *EntryController) Submit(w http.ResponseWriter, r *http.Request) {
 		http.Error(w, "Internal Server Error", http.StatusInternalServerError)
 		return
 	}
+	streak, err := c.entrySvc.GetStreak(userID)
+	if err != nil {
+		http.Error(w, "Internal Server Error", http.StatusInternalServerError)
+		return
+	}
 	c.tmpl.ExecuteTemplate(w, "entry-success", view.HomeView{
 		TodayEntry: entry,
 		Chart:      buildChartView(entries),
+		Streak:     streak,
 	})
 }

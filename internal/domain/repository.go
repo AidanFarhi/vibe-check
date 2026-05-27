@@ -23,4 +23,5 @@ type EntryRepository interface {
 	CreateEntry(e *Entry) (*Entry, error)
 	GetTodayEntry(userID string, date time.Time) (*Entry, error)
 	GetEntriesInRange(userID string, from, to time.Time) ([]Entry, error)
+	GetStreak(userID string) (int, error)
 }
