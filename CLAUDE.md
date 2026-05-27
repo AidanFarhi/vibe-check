@@ -11,3 +11,6 @@
 
 ## PR Guidelines
 @docs/guides/pr-guidelines.md
+
+## Issue Creation Guidelines
+@docs/guides/issue-guidelines.md
