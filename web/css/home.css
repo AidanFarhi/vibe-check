@@ -69,13 +69,16 @@ header {
 
 /* ── Today card ──────────────────────────────────────── */
 .today-card {
-  border-color: #1a2540;
+  border-color: var(--today-card-border, #1a2540);
   display: flex;
   align-items: flex-end;
   justify-content: space-between;
   gap: 12px;
+  cursor: pointer;
   transition: background 0.4s, border-color 0.4s;
 }
+
+.today-card:hover { border-color: #2e3a58; }
 
 .today-score {
   font-size: clamp(52px, 14vw, 72px);
@@ -133,6 +136,7 @@ header {
 
 .metric-card:hover { border-color: #2e3a58; }
 .metric-card.active { border-color: var(--accent); }
+.today-card.active { border-color: var(--accent); }
 
 .metric-name {
   font-size: 10px;

@@ -15,20 +15,12 @@
     </div>
 
     <div class="metric-pills">
-        <button class="pill"        data-metric="all"        onclick="setMetricPill(this)">All</button>
-        <button class="pill active" data-metric="energy"     onclick="setMetricPill(this)">Energy</button>
+        <button class="pill active" data-metric="score"      onclick="setMetricPill(this)">Score</button>
+        <button class="pill"        data-metric="energy"     onclick="setMetricPill(this)">Energy</button>
         <button class="pill"        data-metric="sleep"      onclick="setMetricPill(this)">Sleep</button>
         <button class="pill"        data-metric="happiness"  onclick="setMetricPill(this)">Happiness</button>
         <button class="pill"        data-metric="pain"       onclick="setMetricPill(this)">Pain</button>
         <button class="pill"        data-metric="depression" onclick="setMetricPill(this)">Depression</button>
-    </div>
-
-    <div class="chart-legend" id="chartLegend" style="display:none">
-        <div class="legend-item"><div class="legend-dot" style="background:#4ecfb0"></div>Energy</div>
-        <div class="legend-item"><div class="legend-dot" style="background:#38b8a0"></div>Sleep</div>
-        <div class="legend-item"><div class="legend-dot" style="background:#7eb8f7"></div>Happiness</div>
-        <div class="legend-item"><div class="legend-dot" style="background:#d98878"></div>Pain</div>
-        <div class="legend-item"><div class="legend-dot" style="background:#a84560"></div>Depression</div>
     </div>
 
     <div id="lineChartWrap">
@@ -37,7 +29,16 @@
             <line x1="0" y1="42" x2="300" y2="42" stroke="#1a1d27" stroke-width="1"/>
             <line x1="0" y1="74" x2="300" y2="74" stroke="#1a1d27" stroke-width="1"/>
 
-            <g class="mline" id="g-energy" data-metric="energy">
+            <g class="mline" id="g-score" data-metric="score">
+                <path class="mline-area" d="{{ chartAreaPath .Chart.Days "score" }}" fill="#7aadff" fill-opacity="0.07"/>
+                <path d="{{ chartLinePath .Chart.Days "score" }}" fill="none" stroke="#7aadff" stroke-width="2" stroke-linejoin="round" stroke-linecap="round"/>
+                {{ if chartHasDot .Chart.Days "score" }}
+                <circle cx="{{ printf "%.1f" (chartDotX .Chart.Days "score") }}" cy="{{ printf "%.1f" (chartDotY .Chart.Days "score") }}" r="4" fill="#7aadff" fill-opacity="0.2"/>
+                <circle cx="{{ printf "%.1f" (chartDotX .Chart.Days "score") }}" cy="{{ printf "%.1f" (chartDotY .Chart.Days "score") }}" r="2.5" fill="#7aadff"/>
+                {{ end }}
+            </g>
+
+            <g class="mline" id="g-energy" data-metric="energy" style="opacity:0">
                 <path class="mline-area" d="{{ chartAreaPath .Chart.Days "energy" }}" fill="#4ecfb0" fill-opacity="0.07"/>
                 <path d="{{ chartLinePath .Chart.Days "energy" }}" fill="none" stroke="#4ecfb0" stroke-width="2" stroke-linejoin="round" stroke-linecap="round"/>
                 {{ if chartHasDot .Chart.Days "energy" }}
@@ -88,7 +89,6 @@
         </div>
     </div>
 
-    <svg id="radarChart" class="radar-svg" viewBox="0 0 320 190" preserveAspectRatio="xMidYMid meet" style="display:none"></svg>
 
 </div>
 {{ end }}

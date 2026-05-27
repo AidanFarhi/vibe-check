@@ -1,6 +1,6 @@
 {{ define "metric-tiles" }}
 <div class="metrics-grid">
-    <div class="metric-card active" onclick="selectMetric('energy')" data-metric="energy">
+    <div class="metric-card" onclick="selectMetric('energy')" data-metric="energy">
         <div class="metric-name">Energy</div>
         <div class="metric-value" style="color:#4ecfb0">{{ .TodayEntry.Energy }}</div>
         <div class="metric-bar-track">

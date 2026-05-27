@@ -64,7 +64,9 @@ func buildChartView(entries []domain.Entry) view.ChartView {
 		}
 		day := view.ChartDay{Label: label}
 		if e, ok := byDate[d.Format("2006-01-02")]; ok {
+			score := int(e.Score + 0.5)
 			dep, hap, pain, energy, sleep := e.Depression, e.Happiness, e.Pain, e.Energy, e.Sleep
+			day.Score = &score
 			day.Depression = &dep
 			day.Happiness = &hap
 			day.Pain = &pain

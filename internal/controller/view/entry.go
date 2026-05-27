@@ -11,6 +11,7 @@ type ModalView struct {
 // Each metric pointer is nil when no entry was logged for that day.
 type ChartDay struct {
 	Label      string
+	Score      *int
 	Depression *int
 	Happiness  *int
 	Pain       *int

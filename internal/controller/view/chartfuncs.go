@@ -18,6 +18,8 @@ func svgY(val int) float64 {
 
 func metricPtr(day ChartDay, metric string) *int {
 	switch metric {
+	case "score":
+		return day.Score
 	case "energy":
 		return day.Energy
 	case "sleep":
