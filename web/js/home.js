@@ -80,3 +80,25 @@ function updateVal(key, val) {
 }
 
 applyMetric('score');
+
+// ── Chart dot fix ────────────────────────────────────
+// preserveAspectRatio="none" stretches x and y independently, turning circles
+// into ovals on wide screens. Compensate by scaleX on each dot.
+function fixChartDots() {
+  const svg = document.querySelector('.chart-svg');
+  if (!svg) return;
+  const w = svg.getBoundingClientRect().width;
+  if (!w) return;
+  const scaleX = 390 / w; // yScale/xScale = (130/100) / (w/300)
+  svg.querySelectorAll('circle').forEach(c => {
+    c.style.transform = `scaleX(${scaleX})`;
+  });
+}
+
+let _dotFixTimer;
+window.addEventListener('resize', () => {
+  clearTimeout(_dotFixTimer);
+  _dotFixTimer = setTimeout(fixChartDots, 60);
+});
+document.addEventListener('htmx:afterSettle', fixChartDots);
+fixChartDots();
