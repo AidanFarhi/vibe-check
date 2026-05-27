@@ -32,9 +32,15 @@ func (h *Home) Index(w http.ResponseWriter, r *http.Request) {
 		http.Error(w, "Internal Server Error", http.StatusInternalServerError)
 		return
 	}
+	streak, err := h.entrySvc.GetStreak(userID)
+	if err != nil {
+		http.Error(w, "Internal Server Error", http.StatusInternalServerError)
+		return
+	}
 	v := view.HomeView{
 		TodayEntry: entry,
 		Chart:      buildChartView(entries),
+		Streak:     streak,
 	}
 	if err := h.tmpl.ExecuteTemplate(w, "home", v); err != nil {
 		http.Error(w, "Internal Server Error", http.StatusInternalServerError)

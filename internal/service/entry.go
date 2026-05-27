@@ -25,6 +25,10 @@ func (s *EntryService) GetRecentEntries(userID string, days int) ([]domain.Entry
 	return s.entries.GetEntriesInRange(userID, from, today)
 }
 
+func (s *EntryService) GetStreak(userID string) (int, error) {
+	return s.entries.GetStreak(userID)
+}
+
 func (s *EntryService) SubmitEntry(userID string, date time.Time, depression, happiness, pain, energy, sleep int, note string) (*domain.Entry, error) {
 	e, err := domain.NewEntry(userID, date, depression, happiness, pain, energy, sleep, note)
 	if err != nil {

@@ -27,4 +27,5 @@ type HomeView struct {
 	ModalView
 	TodayEntry *domain.Entry
 	Chart      ChartView
+	Streak     int
 }
