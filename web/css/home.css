@@ -168,6 +168,7 @@ header {
   font-size: 11px;
   font-weight: 600;
   letter-spacing: -0.2px;
+  color: var(--text-muted);
 }
 
 .metric-trend.good  { color: #4ecfb0; }

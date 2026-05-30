@@ -23,9 +23,19 @@ type ChartView struct {
 	Days []ChartDay
 }
 
+type MetricDelta struct {
+	Text  string
+	Class string
+}
+
+type MetricDeltas struct {
+	Energy, Sleep, Happiness, Pain, Depression MetricDelta
+}
+
 type HomeView struct {
 	ModalView
 	TodayEntry *domain.Entry
 	Chart      ChartView
 	Streak     int
+	Deltas     MetricDeltas
 }
