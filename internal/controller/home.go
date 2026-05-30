@@ -1,6 +1,7 @@
 package controller
 
 import (
+	"fmt"
 	"html/template"
 	"net/http"
 	"time"
@@ -37,10 +38,19 @@ func (h *Home) Index(w http.ResponseWriter, r *http.Request) {
 		http.Error(w, "Internal Server Error", http.StatusInternalServerError)
 		return
 	}
+	yesterday := localDateUTC().AddDate(0, 0, -1)
+	var yesterdayEntry *domain.Entry
+	for i := range entries {
+		if entries[i].Date.Equal(yesterday) {
+			yesterdayEntry = &entries[i]
+			break
+		}
+	}
 	v := view.HomeView{
 		TodayEntry: entry,
 		Chart:      buildChartView(entries),
 		Streak:     streak,
+		Deltas:     buildMetricDeltas(entry, yesterdayEntry),
 	}
 	if err := h.tmpl.ExecuteTemplate(w, "home", v); err != nil {
 		http.Error(w, "Internal Server Error", http.StatusInternalServerError)
@@ -53,6 +63,42 @@ func (h *Home) Index(w http.ResponseWriter, r *http.Request) {
 func localDateUTC() time.Time {
 	now := time.Now()
 	return time.Date(now.Year(), now.Month(), now.Day(), 0, 0, 0, 0, time.UTC)
+}
+
+func buildMetricDeltas(today, yesterday *domain.Entry) view.MetricDeltas {
+	if today == nil {
+		return view.MetricDeltas{}
+	}
+	if yesterday == nil {
+		noEntry := view.MetricDelta{Text: "— no entry yesterday"}
+		return view.MetricDeltas{
+			Energy: noEntry, Sleep: noEntry, Happiness: noEntry,
+			Pain: noEntry, Depression: noEntry,
+		}
+	}
+	return view.MetricDeltas{
+		Energy:     metricDelta(today.Energy, yesterday.Energy, true),
+		Sleep:      metricDelta(today.Sleep, yesterday.Sleep, true),
+		Happiness:  metricDelta(today.Happiness, yesterday.Happiness, true),
+		Pain:       metricDelta(today.Pain, yesterday.Pain, false),
+		Depression: metricDelta(today.Depression, yesterday.Depression, false),
+	}
+}
+
+func metricDelta(today, yesterday int, higherIsBetter bool) view.MetricDelta {
+	d := today - yesterday
+	if d == 0 {
+		return view.MetricDelta{Text: "— no change from yesterday"}
+	}
+	abs, arrow := d, "↑"
+	if d < 0 {
+		abs, arrow = -d, "↓"
+	}
+	class := "good"
+	if (d > 0) != higherIsBetter {
+		class = "bad"
+	}
+	return view.MetricDelta{Text: fmt.Sprintf("%s %d from yesterday", arrow, abs), Class: class}
 }
 
 func buildChartView(entries []domain.Entry) view.ChartView {

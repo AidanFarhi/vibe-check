@@ -6,7 +6,7 @@
         <div class="metric-bar-track">
             <div class="metric-bar-fill" style="width:{{ mul .TodayEntry.Energy 10 }}%;background:#4ecfb0;opacity:0.8"></div>
         </div>
-        <div class="metric-trend good">↑ 4 from yesterday</div>
+        <div class="metric-trend {{ .Deltas.Energy.Class }}">{{ .Deltas.Energy.Text }}</div>
     </div>
     <div class="metric-card" onclick="selectMetric('sleep')" data-metric="sleep">
         <div class="metric-name">Sleep</div>
@@ -14,7 +14,7 @@
         <div class="metric-bar-track">
             <div class="metric-bar-fill" style="width:{{ mul .TodayEntry.Sleep 10 }}%;background:#38b8a0;opacity:0.8"></div>
         </div>
-        <div class="metric-trend good">↑ 2 from yesterday</div>
+        <div class="metric-trend {{ .Deltas.Sleep.Class }}">{{ .Deltas.Sleep.Text }}</div>
     </div>
     <div class="metric-card" onclick="selectMetric('happiness')" data-metric="happiness">
         <div class="metric-name">Happiness</div>
@@ -22,7 +22,7 @@
         <div class="metric-bar-track">
             <div class="metric-bar-fill" style="width:{{ mul .TodayEntry.Happiness 10 }}%;background:#e8a87c;opacity:0.8"></div>
         </div>
-        <div class="metric-trend good">↑ 3 from yesterday</div>
+        <div class="metric-trend {{ .Deltas.Happiness.Class }}">{{ .Deltas.Happiness.Text }}</div>
     </div>
     <div class="metric-card" onclick="selectMetric('pain')" data-metric="pain">
         <div class="metric-name">Pain</div>
@@ -30,7 +30,7 @@
         <div class="metric-bar-track">
             <div class="metric-bar-fill" style="width:{{ mul .TodayEntry.Pain 10 }}%;background:#d98878"></div>
         </div>
-        <div class="metric-trend good">↓ 1 from yesterday</div>
+        <div class="metric-trend {{ .Deltas.Pain.Class }}">{{ .Deltas.Pain.Text }}</div>
     </div>
     <div class="metric-card" onclick="selectMetric('depression')" data-metric="depression">
         <div class="metric-name">Depression</div>
@@ -38,7 +38,7 @@
         <div class="metric-bar-track">
             <div class="metric-bar-fill" style="width:{{ mul .TodayEntry.Depression 10 }}%;background:#a84560"></div>
         </div>
-        <div class="metric-trend good">↓ 2 from yesterday</div>
+        <div class="metric-trend {{ .Deltas.Depression.Class }}">{{ .Deltas.Depression.Text }}</div>
     </div>
 </div>
 {{ end }}
