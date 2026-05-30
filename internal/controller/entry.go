@@ -58,9 +58,18 @@ func (c *EntryController) Submit(w http.ResponseWriter, r *http.Request) {
 		http.Error(w, "Internal Server Error", http.StatusInternalServerError)
 		return
 	}
+	yesterday := localDateUTC().AddDate(0, 0, -1)
+	var yesterdayEntry *domain.Entry
+	for i := range entries {
+		if entries[i].Date.Equal(yesterday) {
+			yesterdayEntry = &entries[i]
+			break
+		}
+	}
 	c.tmpl.ExecuteTemplate(w, "entry-success", view.HomeView{
 		TodayEntry: entry,
 		Chart:      buildChartView(entries),
 		Streak:     streak,
+		Deltas:     buildMetricDeltas(entry, yesterdayEntry),
 	})
 }
