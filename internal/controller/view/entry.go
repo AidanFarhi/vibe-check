@@ -38,4 +38,5 @@ type HomeView struct {
 	Chart      ChartView
 	Streak     int
 	Deltas     MetricDeltas
+	ScoreLabel string
 }
