@@ -51,6 +51,7 @@ func (h *Home) Index(w http.ResponseWriter, r *http.Request) {
 		Chart:      buildChartView(entries),
 		Streak:     streak,
 		Deltas:     buildMetricDeltas(entry, yesterdayEntry),
+		ScoreLabel: buildScoreLabel(entry, yesterdayEntry),
 	}
 	if err := h.tmpl.ExecuteTemplate(w, "home", v); err != nil {
 		http.Error(w, "Internal Server Error", http.StatusInternalServerError)
@@ -63,6 +64,32 @@ func (h *Home) Index(w http.ResponseWriter, r *http.Request) {
 func localDateUTC() time.Time {
 	now := time.Now()
 	return time.Date(now.Year(), now.Month(), now.Day(), 0, 0, 0, 0, time.UTC)
+}
+
+func buildScoreLabel(today, yesterday *domain.Entry) string {
+	if today == nil {
+		return ""
+	}
+	tier := "Poor"
+	switch {
+	case today.Score >= 7.5:
+		tier = "Great"
+	case today.Score >= 4.5:
+		tier = "Moderate"
+	case today.Score >= 2.5:
+		tier = "Low"
+	}
+	if yesterday == nil {
+		return tier
+	}
+	switch {
+	case today.Score > yesterday.Score:
+		return tier + " ↑ up from yesterday"
+	case today.Score < yesterday.Score:
+		return tier + " ↓ down from yesterday"
+	default:
+		return tier + " same as yesterday"
+	}
 }
 
 func buildMetricDeltas(today, yesterday *domain.Entry) view.MetricDeltas {

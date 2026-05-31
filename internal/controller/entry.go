@@ -71,5 +71,6 @@ func (c *EntryController) Submit(w http.ResponseWriter, r *http.Request) {
 		Chart:      buildChartView(entries),
 		Streak:     streak,
 		Deltas:     buildMetricDeltas(entry, yesterdayEntry),
+		ScoreLabel: buildScoreLabel(entry, yesterdayEntry),
 	})
 }
