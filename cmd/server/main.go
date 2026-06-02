@@ -18,6 +18,7 @@ import (
 
 	"github.com/joho/godotenv"
 	_ "github.com/lib/pq"
+	_ "time/tzdata"
 )
 
 func main() {
