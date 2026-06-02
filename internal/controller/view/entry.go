@@ -34,9 +34,10 @@ type MetricDeltas struct {
 
 type HomeView struct {
 	ModalView
-	TodayEntry *domain.Entry
-	Chart      ChartView
-	Streak     int
-	Deltas     MetricDeltas
-	ScoreLabel string
+	TodayEntry  *domain.Entry
+	Chart       ChartView
+	Streak      int
+	Deltas      MetricDeltas
+	ScoreLabel  string
+	CurrentDate string
 }

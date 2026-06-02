@@ -46,12 +46,14 @@ func (h *Home) Index(w http.ResponseWriter, r *http.Request) {
 			break
 		}
 	}
+	estLoc, _ := time.LoadLocation("America/New_York")
 	v := view.HomeView{
-		TodayEntry: entry,
-		Chart:      buildChartView(entries),
-		Streak:     streak,
-		Deltas:     buildMetricDeltas(entry, yesterdayEntry),
-		ScoreLabel: buildScoreLabel(entry, yesterdayEntry),
+		TodayEntry:  entry,
+		Chart:       buildChartView(entries),
+		Streak:      streak,
+		Deltas:      buildMetricDeltas(entry, yesterdayEntry),
+		ScoreLabel:  buildScoreLabel(entry, yesterdayEntry),
+		CurrentDate: time.Now().In(estLoc).Format("Mon, Jan 2"),
 	}
 	if err := h.tmpl.ExecuteTemplate(w, "home", v); err != nil {
 		http.Error(w, "Internal Server Error", http.StatusInternalServerError)
