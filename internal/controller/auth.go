@@ -6,6 +6,7 @@ import (
 	"net/http"
 	"time"
 
+	"vibecheck/internal/controller/view"
 	"vibecheck/internal/domain"
 	"vibecheck/internal/service"
 )
@@ -19,26 +20,25 @@ func NewAuth(tmpl *template.Template, authSvc *service.AuthService) *Auth {
 	return &Auth{tmpl: tmpl, authSvc: authSvc}
 }
 
-type authView struct {
-	Error string
-}
-
 func (a *Auth) RegisterPage(w http.ResponseWriter, r *http.Request) {
-	a.render(w, "register", authView{})
+	a.render(w, "register", view.AuthView{})
 }
 
 func (a *Auth) Register(w http.ResponseWriter, r *http.Request) {
-	token, err := a.authSvc.Register(r.FormValue("email"), r.FormValue("password"))
+	email := r.FormValue("email")
+	token, err := a.authSvc.Register(email, r.FormValue("password"), r.FormValue("confirm_password"))
 	if err != nil {
 		msg := "Registration failed. Please try again."
 		switch {
+		case errors.Is(err, service.ErrPasswordMismatch):
+			msg = "Passwords do not match."
 		case errors.Is(err, service.ErrWeakPassword):
 			msg = "Password must be at least 8 characters."
 		case errors.Is(err, domain.ErrEmailTaken):
 			msg = "An account with that email already exists."
 		}
 		w.WriteHeader(http.StatusUnprocessableEntity)
-		a.render(w, "register", authView{Error: msg})
+		a.render(w, "register", view.AuthView{Error: msg, Email: email})
 		return
 	}
 	http.SetCookie(w, &http.Cookie{
@@ -53,14 +53,14 @@ func (a *Auth) Register(w http.ResponseWriter, r *http.Request) {
 }
 
 func (a *Auth) LoginPage(w http.ResponseWriter, r *http.Request) {
-	a.render(w, "login", authView{})
+	a.render(w, "login", view.AuthView{})
 }
 
 func (a *Auth) Login(w http.ResponseWriter, r *http.Request) {
 	token, err := a.authSvc.Login(r.FormValue("email"), r.FormValue("password"))
 	if err != nil {
 		w.WriteHeader(http.StatusUnauthorized)
-		a.render(w, "login", authView{Error: "Invalid email or password."})
+		a.render(w, "login", view.AuthView{Error: "Invalid email or password."})
 		return
 	}
 	http.SetCookie(w, &http.Cookie{
@@ -88,7 +88,7 @@ func (a *Auth) Logout(w http.ResponseWriter, r *http.Request) {
 	http.Redirect(w, r, "/login", http.StatusSeeOther)
 }
 
-func (a *Auth) render(w http.ResponseWriter, name string, data authView) {
+func (a *Auth) render(w http.ResponseWriter, name string, data view.AuthView) {
 	if err := a.tmpl.ExecuteTemplate(w, name, data); err != nil {
 		http.Error(w, "Internal Server Error", http.StatusInternalServerError)
 	}
