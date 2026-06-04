@@ -13,6 +13,7 @@ import (
 
 var ErrInvalidCredentials = errors.New("invalid credentials")
 var ErrWeakPassword = errors.New("password must be at least 8 characters")
+var ErrPasswordMismatch = errors.New("passwords do not match")
 
 type AuthService struct {
 	users    domain.UserRepository
@@ -23,7 +24,10 @@ func NewAuth(users domain.UserRepository, sessions domain.SessionRepository) *Au
 	return &AuthService{users: users, sessions: sessions}
 }
 
-func (s *AuthService) Register(email, password string) (string, error) {
+func (s *AuthService) Register(email, password, confirmPassword string) (string, error) {
+	if password != confirmPassword {
+		return "", ErrPasswordMismatch
+	}
 	if len(password) < 8 {
 		return "", ErrWeakPassword
 	}
