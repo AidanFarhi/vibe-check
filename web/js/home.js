@@ -23,14 +23,11 @@ applyScoreTheme();
 document.addEventListener('htmx:afterSettle', applyScoreTheme);
 
 // ── Chart filters ────────────────────────────────────
-let _activeMetric = 'score';
-
 function setMetricPill(pill) {
   selectMetric(pill.dataset.metric);
 }
 
 function selectMetric(id) {
-  _activeMetric = id;
   document.querySelectorAll('.pill').forEach(p => {
     p.classList.toggle('active', p.dataset.metric === id);
   });
@@ -38,6 +35,8 @@ function selectMetric(id) {
     c.classList.toggle('active', c.dataset.metric === id);
   });
   applyMetric(id);
+  const input = document.getElementById('form-metric');
+  if (input) input.value = id;
 }
 
 function applyMetric(id) {
@@ -55,6 +54,12 @@ function syncFormPeriod() {
   if (active && input) input.value = active.dataset.period;
 }
 
+function syncFormMetric() {
+  const active = document.querySelector('.pill.active');
+  const input = document.getElementById('form-metric');
+  if (active && input) input.value = active.dataset.metric;
+}
+
 document.body.addEventListener('click', (e) => {
   const btn = e.target.closest('.time-btn');
   if (!btn) return;
@@ -64,8 +69,8 @@ document.body.addEventListener('click', (e) => {
 
 function onChartSwapped(target) {
   if (target?.id !== 'chart-card') return;
-  selectMetric(_activeMetric);
   syncFormPeriod();
+  syncFormMetric();
 }
 
 document.body.addEventListener('htmx:afterSwap', (e) => onChartSwapped(e.target));

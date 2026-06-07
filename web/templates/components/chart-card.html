@@ -7,20 +7,20 @@
 {{ define "chart-card-body" }}
 
     <div class="time-filter">
-        <button class="time-btn{{ if eq .Chart.Period "7D"  }} active{{ end }}" data-period="7D"  hx-get="/chart?period=7D"  hx-target="#chart-card" hx-swap="outerHTML">7D</button>
-        <button class="time-btn{{ if eq .Chart.Period "30D" }} active{{ end }}" data-period="30D" hx-get="/chart?period=30D" hx-target="#chart-card" hx-swap="outerHTML">30D</button>
-        <button class="time-btn{{ if eq .Chart.Period "3M"  }} active{{ end }}" data-period="3M"  hx-get="/chart?period=3M"  hx-target="#chart-card" hx-swap="outerHTML">3M</button>
-        <button class="time-btn{{ if eq .Chart.Period "6M"  }} active{{ end }}" data-period="6M"  hx-get="/chart?period=6M"  hx-target="#chart-card" hx-swap="outerHTML">6M</button>
-        <button class="time-btn{{ if eq .Chart.Period "1Y"  }} active{{ end }}" data-period="1Y"  hx-get="/chart?period=1Y"  hx-target="#chart-card" hx-swap="outerHTML">1Y</button>
+        <button class="time-btn{{ if eq .Chart.Period "7D"  }} active{{ end }}" data-period="7D"  hx-get="/chart?period=7D"  hx-include="#form-metric" hx-target="#chart-card" hx-swap="outerHTML">7D</button>
+        <button class="time-btn{{ if eq .Chart.Period "30D" }} active{{ end }}" data-period="30D" hx-get="/chart?period=30D" hx-include="#form-metric" hx-target="#chart-card" hx-swap="outerHTML">30D</button>
+        <button class="time-btn{{ if eq .Chart.Period "3M"  }} active{{ end }}" data-period="3M"  hx-get="/chart?period=3M"  hx-include="#form-metric" hx-target="#chart-card" hx-swap="outerHTML">3M</button>
+        <button class="time-btn{{ if eq .Chart.Period "6M"  }} active{{ end }}" data-period="6M"  hx-get="/chart?period=6M"  hx-include="#form-metric" hx-target="#chart-card" hx-swap="outerHTML">6M</button>
+        <button class="time-btn{{ if eq .Chart.Period "1Y"  }} active{{ end }}" data-period="1Y"  hx-get="/chart?period=1Y"  hx-include="#form-metric" hx-target="#chart-card" hx-swap="outerHTML">1Y</button>
     </div>
 
     <div class="metric-pills">
-        <button class="pill active" data-metric="score"      onclick="setMetricPill(this)">Score</button>
-        <button class="pill"        data-metric="energy"     onclick="setMetricPill(this)">Energy</button>
-        <button class="pill"        data-metric="sleep"      onclick="setMetricPill(this)">Sleep</button>
-        <button class="pill"        data-metric="happiness"  onclick="setMetricPill(this)">Happiness</button>
-        <button class="pill"        data-metric="pain"       onclick="setMetricPill(this)">Pain</button>
-        <button class="pill"        data-metric="depression" onclick="setMetricPill(this)">Depression</button>
+        <button class="pill{{ if eq .Chart.Metric "score"      }} active{{ end }}" data-metric="score"      onclick="setMetricPill(this)">Score</button>
+        <button class="pill{{ if eq .Chart.Metric "energy"     }} active{{ end }}" data-metric="energy"     onclick="setMetricPill(this)">Energy</button>
+        <button class="pill{{ if eq .Chart.Metric "sleep"      }} active{{ end }}" data-metric="sleep"      onclick="setMetricPill(this)">Sleep</button>
+        <button class="pill{{ if eq .Chart.Metric "happiness"  }} active{{ end }}" data-metric="happiness"  onclick="setMetricPill(this)">Happiness</button>
+        <button class="pill{{ if eq .Chart.Metric "pain"       }} active{{ end }}" data-metric="pain"       onclick="setMetricPill(this)">Pain</button>
+        <button class="pill{{ if eq .Chart.Metric "depression" }} active{{ end }}" data-metric="depression" onclick="setMetricPill(this)">Depression</button>
     </div>
 
     <div id="lineChartWrap">
@@ -29,7 +29,7 @@
             <line x1="0" y1="42" x2="300" y2="42" stroke="#1a1d27" stroke-width="1"/>
             <line x1="0" y1="74" x2="300" y2="74" stroke="#1a1d27" stroke-width="1"/>
 
-            <g class="mline" id="g-score" data-metric="score">
+            <g class="mline" id="g-score" data-metric="score"{{ if ne .Chart.Metric "score" }} style="opacity:0"{{ end }}>
                 <path class="mline-area" d="{{ chartAreaPath .Chart.Days "score" }}" fill="#7aadff" fill-opacity="0.07"/>
                 <path d="{{ chartLinePath .Chart.Days "score" }}" fill="none" stroke="#7aadff" stroke-width="2" stroke-linejoin="round" stroke-linecap="round"/>
                 {{ if chartHasDot .Chart.Days "score" }}
@@ -38,7 +38,7 @@
                 {{ end }}
             </g>
 
-            <g class="mline" id="g-energy" data-metric="energy" style="opacity:0">
+            <g class="mline" id="g-energy" data-metric="energy"{{ if ne .Chart.Metric "energy" }} style="opacity:0"{{ end }}>
                 <path class="mline-area" d="{{ chartAreaPath .Chart.Days "energy" }}" fill="#4ecfb0" fill-opacity="0.07"/>
                 <path d="{{ chartLinePath .Chart.Days "energy" }}" fill="none" stroke="#4ecfb0" stroke-width="2" stroke-linejoin="round" stroke-linecap="round"/>
                 {{ if chartHasDot .Chart.Days "energy" }}
@@ -47,7 +47,7 @@
                 {{ end }}
             </g>
 
-            <g class="mline" id="g-sleep" data-metric="sleep" style="opacity:0">
+            <g class="mline" id="g-sleep" data-metric="sleep"{{ if ne .Chart.Metric "sleep" }} style="opacity:0"{{ end }}>
                 <path class="mline-area" d="{{ chartAreaPath .Chart.Days "sleep" }}" fill="#38b8a0" fill-opacity="0.07"/>
                 <path d="{{ chartLinePath .Chart.Days "sleep" }}" fill="none" stroke="#38b8a0" stroke-width="2" stroke-linejoin="round" stroke-linecap="round"/>
                 {{ if chartHasDot .Chart.Days "sleep" }}
@@ -56,7 +56,7 @@
                 {{ end }}
             </g>
 
-            <g class="mline" id="g-happiness" data-metric="happiness" style="opacity:0">
+            <g class="mline" id="g-happiness" data-metric="happiness"{{ if ne .Chart.Metric "happiness" }} style="opacity:0"{{ end }}>
                 <path class="mline-area" d="{{ chartAreaPath .Chart.Days "happiness" }}" fill="#7eb8f7" fill-opacity="0.07"/>
                 <path d="{{ chartLinePath .Chart.Days "happiness" }}" fill="none" stroke="#7eb8f7" stroke-width="2" stroke-linejoin="round" stroke-linecap="round"/>
                 {{ if chartHasDot .Chart.Days "happiness" }}
@@ -65,7 +65,7 @@
                 {{ end }}
             </g>
 
-            <g class="mline" id="g-pain" data-metric="pain" style="opacity:0">
+            <g class="mline" id="g-pain" data-metric="pain"{{ if ne .Chart.Metric "pain" }} style="opacity:0"{{ end }}>
                 <path class="mline-area" d="{{ chartAreaPath .Chart.Days "pain" }}" fill="#d98878" fill-opacity="0.07"/>
                 <path d="{{ chartLinePath .Chart.Days "pain" }}" fill="none" stroke="#d98878" stroke-width="2" stroke-linejoin="round" stroke-linecap="round"/>
                 {{ if chartHasDot .Chart.Days "pain" }}
@@ -74,7 +74,7 @@
                 {{ end }}
             </g>
 
-            <g class="mline" id="g-depression" data-metric="depression" style="opacity:0">
+            <g class="mline" id="g-depression" data-metric="depression"{{ if ne .Chart.Metric "depression" }} style="opacity:0"{{ end }}>
                 <path class="mline-area" d="{{ chartAreaPath .Chart.Days "depression" }}" fill="#a84560" fill-opacity="0.07"/>
                 <path d="{{ chartLinePath .Chart.Days "depression" }}" fill="none" stroke="#a84560" stroke-width="2" stroke-linejoin="round" stroke-linecap="round"/>
                 {{ if chartHasDot .Chart.Days "depression" }}

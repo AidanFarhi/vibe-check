@@ -49,7 +49,7 @@ func (h *Home) Index(w http.ResponseWriter, r *http.Request) {
 	estLoc, _ := time.LoadLocation("America/New_York")
 	v := view.HomeView{
 		TodayEntry:  entry,
-		Chart:       buildChartView(entries, view.Period7D),
+		Chart:       buildChartView(entries, view.Period7D, "score"),
 		Streak:      streak,
 		Deltas:      buildMetricDeltas(entry, yesterdayEntry),
 		ScoreLabel:  buildScoreLabel(entry, yesterdayEntry),
@@ -63,12 +63,13 @@ func (h *Home) Index(w http.ResponseWriter, r *http.Request) {
 func (h *Home) Chart(w http.ResponseWriter, r *http.Request) {
 	userID, _ := middleware.UserIDFromContext(r.Context())
 	period := view.ParseChartPeriod(r.URL.Query().Get("period"))
+	metric := view.ParseChartMetric(r.URL.Query().Get("metric"))
 	entries, err := h.entrySvc.GetRecentEntries(userID, view.DaysForPeriod(period))
 	if err != nil {
 		http.Error(w, "Internal Server Error", http.StatusInternalServerError)
 		return
 	}
-	v := view.HomeView{Chart: buildChartView(entries, period)}
+	v := view.HomeView{Chart: buildChartView(entries, period, metric)}
 	if err := h.tmpl.ExecuteTemplate(w, "chart-card", v); err != nil {
 		http.Error(w, "Internal Server Error", http.StatusInternalServerError)
 	}
@@ -144,7 +145,7 @@ func metricDelta(today, yesterday int, higherIsBetter bool) view.MetricDelta {
 	return view.MetricDelta{Text: fmt.Sprintf("%s %d from yesterday", arrow, abs), Class: class}
 }
 
-func buildChartView(entries []domain.Entry, period view.ChartPeriod) view.ChartView {
+func buildChartView(entries []domain.Entry, period view.ChartPeriod, metric string) view.ChartView {
 	today := localDateUTC()
 	byDate := make(map[string]domain.Entry, len(entries))
 	for _, e := range entries {
@@ -163,7 +164,7 @@ func buildChartView(entries []domain.Entry, period view.ChartPeriod) view.ChartV
 	default:
 		days = dailyBuckets(today, 7, byDate)
 	}
-	return view.ChartView{Days: days, Period: period}
+	return view.ChartView{Days: days, Period: period, Metric: metric}
 }
 
 func dailyBuckets(today time.Time, count int, byDate map[string]domain.Entry) []view.ChartDay {

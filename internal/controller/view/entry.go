@@ -40,6 +40,15 @@ func DaysForPeriod(p ChartPeriod) int {
 	return 7
 }
 
+// ParseChartMetric clamps the input to a known metric, defaulting to "score".
+func ParseChartMetric(s string) string {
+	switch s {
+	case "energy", "sleep", "happiness", "pain", "depression", "score":
+		return s
+	}
+	return "score"
+}
+
 // ChartDay holds data for a single bucket in the chart — a day, week, or month.
 // Each metric pointer is nil when no entry exists for that bucket.
 type ChartDay struct {
@@ -55,6 +64,7 @@ type ChartDay struct {
 type ChartView struct {
 	Days   []ChartDay
 	Period ChartPeriod
+	Metric string
 }
 
 type MetricDelta struct {
