@@ -23,7 +23,7 @@ Vibe Check is a personal health tracking tool that lets users log daily wellness
 | Language   | Go (Golang)                       |
 | Database   | PostgreSQL                        |
 | Frontend   | HTMX + Go HTML Templates          |
-| Charting   | Chart.js                          |
+| Charting   | Server-rendered SVG (Go template funcs) |
 | Container  | Docker                            |
 | Deployment | Fly.io                            |
 
@@ -71,13 +71,14 @@ repo ← domain ← service ← controller
 - Owns a `view/` sub-package of plain Go structs that carry data into HTML templates — no business logic, purely a data-transfer shape for the template renderer
 
 **service**
-- Application use cases: `SubmitEntry` (implemented), `GetEntries` (planned)
+- Entry use cases: `SubmitEntry`, `GetTodayEntry`, `GetRecentEntries`, `GetStreak`
 - Auth use cases: `Register`, `Login`, `Logout`
 - Enforces business rules (one entry per day, metric range 1–10, password strength)
 - Depends on domain repository interfaces, never on `repo` directly
 
 **domain**
 - `Entry`, `User`, `Session` entities with validation rules
+- `Entry.Score` is a derived field computed from the five metrics in `NewEntry`
 - `EntryRepository`, `UserRepository`, `SessionRepository` interfaces — the contracts that `service` consumes and `repo` satisfies
 - Sentinel errors: `ErrEmailTaken`, `ErrDuplicateEntry`
 - No imports from any other internal package
@@ -114,9 +115,10 @@ CREATE TABLE entry (
     happiness  SMALLINT    NOT NULL CHECK (happiness   BETWEEN 1 AND 10),
     pain       SMALLINT    NOT NULL CHECK (pain        BETWEEN 1 AND 10),
     energy     SMALLINT    NOT NULL CHECK (energy      BETWEEN 1 AND 10),
-    sleep      SMALLINT    NOT NULL CHECK (sleep       BETWEEN 1 AND 10),
+    sleep      SMALLINT     NOT NULL CHECK (sleep       BETWEEN 1 AND 10),
+    score      NUMERIC(4,2) NOT NULL DEFAULT 0,
     note       TEXT,
-    created_at TIMESTAMPTZ NOT NULL DEFAULT now(),
+    created_at TIMESTAMPTZ  NOT NULL DEFAULT now(),
     UNIQUE (user_id, date)
 );
 ```
@@ -142,10 +144,11 @@ CREATE TABLE entry (
 4. On success, the modal closes (HTMX swaps in the closed modal state).
 5. On validation error or duplicate-entry (already logged today), the modal re-renders open with an inline error message.
 
-### 4. View History / Charts *(planned)*
-1. User selects a date range (default: last 30 days).
-2. HTMX fires `GET /entries?from=...&to=...`; the controller calls `GetEntries` on the service.
-3. Server renders a line-chart partial (using Chart.js, driven by data embedded in the HTML).
+### 4. View History / Charts
+1. On home page load, the chart card renders for the default period (7D) and metric (`score`).
+2. User clicks a time-range button (7D, 30D, 3M, 6M, 1Y) or a metric pill (Score, Energy, Sleep, Happiness, Pain, Depression).
+3. HTMX fires `GET /chart?period=...&metric=...`; the controller calls `GetRecentEntries` and buckets the data by day, week, or month depending on period.
+4. Server renders the `chart-card` partial with the line/area drawn as an inline SVG path (path data is precomputed by Go template funcs).
 
 ---
 
@@ -161,13 +164,15 @@ vibe-check/
 │   │   └── middleware.go              # Logging, recovery, RequireAuth
 │   ├── controller/
 │   │   ├── view/
-│   │   │   └── entry.go              # View-model structs for templates
+│   │   │   ├── auth.go               # Auth view-model
+│   │   │   ├── entry.go              # Home/Chart view-model structs
+│   │   │   └── chartfuncs.go         # SVG path-building template funcs
 │   │   ├── auth.go                   # Register, Login, Logout handlers
-│   │   ├── home.go                   # Home page handler
+│   │   ├── home.go                   # Home page + Chart partial handlers
 │   │   └── entry.go                  # Entry submit handler
 │   ├── service/
 │   │   ├── auth.go                   # Register, Login, Logout use cases
-│   │   └── entry.go                  # SubmitEntry use case
+│   │   └── entry.go                  # Entry use cases (submit, get today, recent, streak)
 │   ├── domain/
 │   │   ├── entry.go                  # Entry entity + validation
 │   │   ├── user.go                   # User entity + validation
@@ -184,8 +189,11 @@ vibe-check/
 │   │   ├── 002_create_session.up.sql
 │   │   ├── 002_create_session.down.sql
 │   │   ├── 003_create_entry.up.sql
-│   │   └── 003_create_entry.down.sql
+│   │   ├── 003_create_entry.down.sql
+│   │   ├── 004_add_score_to_entry.up.sql
+│   │   └── 004_add_score_to_entry.down.sql
 │   ├── setup/                        # One-time DB role/database creation scripts
+│   ├── test-scripts/                 # Ad-hoc SQL fixtures for local testing
 │   └── migrate.go                    # Migration runner
 ├── web/
 │   ├── templates/
@@ -196,11 +204,13 @@ vibe-check/
 │   │   │   └── register.html
 │   │   └── components/
 │   │       ├── chart-card.html
+│   │       ├── entry-success.html
 │   │       ├── log-button.html
 │   │       ├── log-modal.html
 │   │       ├── metric-tiles.html
 │   │       ├── metrics-card.html
 │   │       ├── navbar.html
+│   │       ├── no-entry-prompt.html
 │   │       ├── note-card.html
 │   │       ├── page-header.html
 │   │       ├── recent-strip.html
@@ -211,8 +221,14 @@ vibe-check/
 │   │   └── home.css
 │   └── js/
 │       └── home.js
-├── design/
-│   └── high-level-design.md
+├── docs/
+│   ├── design/
+│   │   └── techincal-design.md
+│   └── guides/
+│       ├── coding-guidelines.md
+│       ├── issue-guidelines.md
+│       ├── pr-guidelines.md
+│       └── style-guide.md
 ├── fly.toml
 └── Dockerfile
 ```
