@@ -74,6 +74,7 @@ func main() {
 	mux.HandleFunc("POST /logout", auth.Logout)
 
 	mux.Handle("GET /", requireAuth(http.HandlerFunc(home.Index)))
+	mux.Handle("GET /chart", requireAuth(http.HandlerFunc(home.Chart)))
 	mux.Handle("POST /entries", requireAuth(http.HandlerFunc(entry.Submit)))
 
 	handler := middleware.Chain(mux)

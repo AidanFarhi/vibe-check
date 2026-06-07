@@ -48,7 +48,8 @@ func (c *EntryController) Submit(w http.ResponseWriter, r *http.Request) {
 		return
 	}
 
-	entries, err := c.entrySvc.GetRecentEntries(userID, 7)
+	period := view.ParseChartPeriod(r.FormValue("period"))
+	entries, err := c.entrySvc.GetRecentEntries(userID, view.DaysForPeriod(period))
 	if err != nil {
 		http.Error(w, "Internal Server Error", http.StatusInternalServerError)
 		return
@@ -68,7 +69,7 @@ func (c *EntryController) Submit(w http.ResponseWriter, r *http.Request) {
 	}
 	c.tmpl.ExecuteTemplate(w, "entry-success", view.HomeView{
 		TodayEntry: entry,
-		Chart:      buildChartView(entries),
+		Chart:      buildChartView(entries, period),
 		Streak:     streak,
 		Deltas:     buildMetricDeltas(entry, yesterdayEntry),
 		ScoreLabel: buildScoreLabel(entry, yesterdayEntry),

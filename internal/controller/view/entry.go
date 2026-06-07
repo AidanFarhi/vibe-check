@@ -7,8 +7,41 @@ type ModalView struct {
 	Error string
 }
 
-// ChartDay holds data for a single day slot in the 7-day chart.
-// Each metric pointer is nil when no entry was logged for that day.
+type ChartPeriod string
+
+const (
+	Period7D  ChartPeriod = "7D"
+	Period30D ChartPeriod = "30D"
+	Period3M  ChartPeriod = "3M"
+	Period6M  ChartPeriod = "6M"
+	Period1Y  ChartPeriod = "1Y"
+)
+
+func ParseChartPeriod(s string) ChartPeriod {
+	switch ChartPeriod(s) {
+	case Period30D, Period3M, Period6M, Period1Y:
+		return ChartPeriod(s)
+	}
+	return Period7D
+}
+
+// DaysForPeriod returns how many days of entries to fetch to cover the period.
+func DaysForPeriod(p ChartPeriod) int {
+	switch p {
+	case Period30D:
+		return 30
+	case Period3M:
+		return 13 * 7
+	case Period6M:
+		return 26 * 7
+	case Period1Y:
+		return 366
+	}
+	return 7
+}
+
+// ChartDay holds data for a single bucket in the chart — a day, week, or month.
+// Each metric pointer is nil when no entry exists for that bucket.
 type ChartDay struct {
 	Label      string
 	Score      *int
@@ -20,7 +53,8 @@ type ChartDay struct {
 }
 
 type ChartView struct {
-	Days []ChartDay
+	Days   []ChartDay
+	Period ChartPeriod
 }
 
 type MetricDelta struct {

@@ -7,11 +7,11 @@
 {{ define "chart-card-body" }}
 
     <div class="time-filter">
-        <button class="time-btn active" data-period="7D"  onclick="setTime(this)">7D</button>
-        <button class="time-btn"        data-period="30D" onclick="setTime(this)">30D</button>
-        <button class="time-btn"        data-period="3M"  onclick="setTime(this)">3M</button>
-        <button class="time-btn"        data-period="6M"  onclick="setTime(this)">6M</button>
-        <button class="time-btn"        data-period="1Y"  onclick="setTime(this)">1Y</button>
+        <button class="time-btn{{ if eq .Chart.Period "7D"  }} active{{ end }}" data-period="7D"  hx-get="/chart?period=7D"  hx-target="#chart-card" hx-swap="outerHTML">7D</button>
+        <button class="time-btn{{ if eq .Chart.Period "30D" }} active{{ end }}" data-period="30D" hx-get="/chart?period=30D" hx-target="#chart-card" hx-swap="outerHTML">30D</button>
+        <button class="time-btn{{ if eq .Chart.Period "3M"  }} active{{ end }}" data-period="3M"  hx-get="/chart?period=3M"  hx-target="#chart-card" hx-swap="outerHTML">3M</button>
+        <button class="time-btn{{ if eq .Chart.Period "6M"  }} active{{ end }}" data-period="6M"  hx-get="/chart?period=6M"  hx-target="#chart-card" hx-swap="outerHTML">6M</button>
+        <button class="time-btn{{ if eq .Chart.Period "1Y"  }} active{{ end }}" data-period="1Y"  hx-get="/chart?period=1Y"  hx-target="#chart-card" hx-swap="outerHTML">1Y</button>
     </div>
 
     <div class="metric-pills">
@@ -88,7 +88,4 @@
             {{ range .Chart.Days }}<span{{ if eq .Label "Today" }} class="today"{{ end }}>{{ .Label }}</span>{{ end }}
         </div>
     </div>
-
-
-</div>
 {{ end }}

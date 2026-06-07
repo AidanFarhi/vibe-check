@@ -5,6 +5,7 @@
         <div class="modal-title">How are you today?</div>
 
         <form hx-post="/entries" hx-target="#modalOverlay" hx-swap="outerHTML">
+            <input type="hidden" name="period" id="form-period" value="7D">
             {{ if .Error }}
             <div class="form-error">{{ .Error }}</div>
             {{ end }}

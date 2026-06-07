@@ -23,22 +23,14 @@ applyScoreTheme();
 document.addEventListener('htmx:afterSettle', applyScoreTheme);
 
 // ── Chart filters ────────────────────────────────────
-function setTime(btn) {
-  document.querySelectorAll('.time-btn').forEach(b => b.classList.remove('active'));
-  btn.classList.add('active');
-}
+let _activeMetric = 'score';
 
 function setMetricPill(pill) {
-  document.querySelectorAll('.pill').forEach(p => p.classList.remove('active'));
-  pill.classList.add('active');
-  const id = pill.dataset.metric;
-  document.querySelectorAll('.metric-card').forEach(c => {
-    c.classList.toggle('active', c.dataset.metric === id);
-  });
-  applyMetric(id);
+  selectMetric(pill.dataset.metric);
 }
 
 function selectMetric(id) {
+  _activeMetric = id;
   document.querySelectorAll('.pill').forEach(p => {
     p.classList.toggle('active', p.dataset.metric === id);
   });
@@ -56,6 +48,28 @@ function applyMetric(id) {
   });
   document.getElementById('todayCard')?.classList.toggle('active', id === 'score');
 }
+
+function syncFormPeriod() {
+  const active = document.querySelector('.time-btn.active');
+  const input = document.getElementById('form-period');
+  if (active && input) input.value = active.dataset.period;
+}
+
+document.body.addEventListener('click', (e) => {
+  const btn = e.target.closest('.time-btn');
+  if (!btn) return;
+  const input = document.getElementById('form-period');
+  if (input) input.value = btn.dataset.period;
+});
+
+function onChartSwapped(target) {
+  if (target?.id !== 'chart-card') return;
+  selectMetric(_activeMetric);
+  syncFormPeriod();
+}
+
+document.body.addEventListener('htmx:afterSwap', (e) => onChartSwapped(e.target));
+document.body.addEventListener('htmx:oobAfterSwap', (e) => onChartSwapped(e.target));
 
 // ── Modal ────────────────────────────────────────────
 function openModal() {
