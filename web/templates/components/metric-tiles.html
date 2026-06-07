@@ -1,6 +1,6 @@
 {{ define "metric-tiles" }}
 <div class="metrics-grid">
-    <div class="metric-card" onclick="selectMetric('energy')" data-metric="energy">
+    <div class="metric-card{{ if eq .Chart.Metric "energy" }} active{{ end }}" onclick="selectMetric('energy')" data-metric="energy">
         <div class="metric-name">Energy</div>
         <div class="metric-value" style="color:#4ecfb0">{{ .TodayEntry.Energy }}</div>
         <div class="metric-bar-track">
@@ -8,7 +8,7 @@
         </div>
         <div class="metric-trend {{ .Deltas.Energy.Class }}">{{ .Deltas.Energy.Text }}</div>
     </div>
-    <div class="metric-card" onclick="selectMetric('sleep')" data-metric="sleep">
+    <div class="metric-card{{ if eq .Chart.Metric "sleep" }} active{{ end }}" onclick="selectMetric('sleep')" data-metric="sleep">
         <div class="metric-name">Sleep</div>
         <div class="metric-value" style="color:#38b8a0">{{ .TodayEntry.Sleep }}</div>
         <div class="metric-bar-track">
@@ -16,7 +16,7 @@
         </div>
         <div class="metric-trend {{ .Deltas.Sleep.Class }}">{{ .Deltas.Sleep.Text }}</div>
     </div>
-    <div class="metric-card" onclick="selectMetric('happiness')" data-metric="happiness">
+    <div class="metric-card{{ if eq .Chart.Metric "happiness" }} active{{ end }}" onclick="selectMetric('happiness')" data-metric="happiness">
         <div class="metric-name">Happiness</div>
         <div class="metric-value" style="color:#e8a87c">{{ .TodayEntry.Happiness }}</div>
         <div class="metric-bar-track">
@@ -24,7 +24,7 @@
         </div>
         <div class="metric-trend {{ .Deltas.Happiness.Class }}">{{ .Deltas.Happiness.Text }}</div>
     </div>
-    <div class="metric-card" onclick="selectMetric('pain')" data-metric="pain">
+    <div class="metric-card{{ if eq .Chart.Metric "pain" }} active{{ end }}" onclick="selectMetric('pain')" data-metric="pain">
         <div class="metric-name">Pain</div>
         <div class="metric-value" style="color:#d98878">{{ .TodayEntry.Pain }}</div>
         <div class="metric-bar-track">
@@ -32,7 +32,7 @@
         </div>
         <div class="metric-trend {{ .Deltas.Pain.Class }}">{{ .Deltas.Pain.Text }}</div>
     </div>
-    <div class="metric-card" onclick="selectMetric('depression')" data-metric="depression">
+    <div class="metric-card{{ if eq .Chart.Metric "depression" }} active{{ end }}" onclick="selectMetric('depression')" data-metric="depression">
         <div class="metric-name">Depression</div>
         <div class="metric-value" style="color:#a84560">{{ .TodayEntry.Depression }}</div>
         <div class="metric-bar-track">

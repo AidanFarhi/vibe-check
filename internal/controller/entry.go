@@ -29,6 +29,9 @@ func (c *EntryController) Submit(w http.ResponseWriter, r *http.Request) {
 		return v
 	}
 
+	period := view.ParseChartPeriod(r.FormValue("period"))
+	metric := view.ParseChartMetric(r.FormValue("metric"))
+
 	entry, err := c.entrySvc.SubmitEntry(
 		userID,
 		localDateUTC(),
@@ -44,11 +47,14 @@ func (c *EntryController) Submit(w http.ResponseWriter, r *http.Request) {
 		if errors.Is(err, domain.ErrDuplicateEntry) {
 			msg = "You've already logged an entry for today."
 		}
-		c.tmpl.ExecuteTemplate(w, "log-modal", view.ModalView{Open: true, Error: msg})
+		c.tmpl.ExecuteTemplate(w, "log-modal", view.HomeView{
+			ModalView: view.ModalView{Open: true, Error: msg},
+			Chart:     view.ChartView{Period: period, Metric: metric},
+		})
 		return
 	}
 
-	entries, err := c.entrySvc.GetRecentEntries(userID, 7)
+	entries, err := c.entrySvc.GetRecentEntries(userID, view.DaysForPeriod(period))
 	if err != nil {
 		http.Error(w, "Internal Server Error", http.StatusInternalServerError)
 		return
@@ -68,7 +74,7 @@ func (c *EntryController) Submit(w http.ResponseWriter, r *http.Request) {
 	}
 	c.tmpl.ExecuteTemplate(w, "entry-success", view.HomeView{
 		TodayEntry: entry,
-		Chart:      buildChartView(entries),
+		Chart:      buildChartView(entries, period, metric),
 		Streak:     streak,
 		Deltas:     buildMetricDeltas(entry, yesterdayEntry),
 		ScoreLabel: buildScoreLabel(entry, yesterdayEntry),

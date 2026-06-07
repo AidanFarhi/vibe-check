@@ -5,6 +5,8 @@
         <div class="modal-title">How are you today?</div>
 
         <form hx-post="/entries" hx-target="#modalOverlay" hx-swap="outerHTML">
+            <input type="hidden" name="period" id="form-period" value="{{ if .Chart.Period }}{{ .Chart.Period }}{{ else }}7D{{ end }}">
+            <input type="hidden" name="metric" id="form-metric" value="{{ if .Chart.Metric }}{{ .Chart.Metric }}{{ else }}score{{ end }}">
             {{ if .Error }}
             <div class="form-error">{{ .Error }}</div>
             {{ end }}

@@ -23,19 +23,8 @@ applyScoreTheme();
 document.addEventListener('htmx:afterSettle', applyScoreTheme);
 
 // ── Chart filters ────────────────────────────────────
-function setTime(btn) {
-  document.querySelectorAll('.time-btn').forEach(b => b.classList.remove('active'));
-  btn.classList.add('active');
-}
-
 function setMetricPill(pill) {
-  document.querySelectorAll('.pill').forEach(p => p.classList.remove('active'));
-  pill.classList.add('active');
-  const id = pill.dataset.metric;
-  document.querySelectorAll('.metric-card').forEach(c => {
-    c.classList.toggle('active', c.dataset.metric === id);
-  });
-  applyMetric(id);
+  selectMetric(pill.dataset.metric);
 }
 
 function selectMetric(id) {
@@ -46,6 +35,8 @@ function selectMetric(id) {
     c.classList.toggle('active', c.dataset.metric === id);
   });
   applyMetric(id);
+  const input = document.getElementById('form-metric');
+  if (input) input.value = id;
 }
 
 function applyMetric(id) {
@@ -56,6 +47,34 @@ function applyMetric(id) {
   });
   document.getElementById('todayCard')?.classList.toggle('active', id === 'score');
 }
+
+function syncFormPeriod() {
+  const active = document.querySelector('.time-btn.active');
+  const input = document.getElementById('form-period');
+  if (active && input) input.value = active.dataset.period;
+}
+
+function syncFormMetric() {
+  const active = document.querySelector('.pill.active');
+  const input = document.getElementById('form-metric');
+  if (active && input) input.value = active.dataset.metric;
+}
+
+document.body.addEventListener('click', (e) => {
+  const btn = e.target.closest('.time-btn');
+  if (!btn) return;
+  const input = document.getElementById('form-period');
+  if (input) input.value = btn.dataset.period;
+});
+
+function onChartSwapped(target) {
+  if (target?.id !== 'chart-card') return;
+  syncFormPeriod();
+  syncFormMetric();
+}
+
+document.body.addEventListener('htmx:afterSwap', (e) => onChartSwapped(e.target));
+document.body.addEventListener('htmx:oobAfterSwap', (e) => onChartSwapped(e.target));
 
 // ── Modal ────────────────────────────────────────────
 function openModal() {

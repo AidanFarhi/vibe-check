@@ -5,10 +5,10 @@ import (
 	"strings"
 )
 
-// svgX returns the SVG x-coordinate for day index i (0–6),
+// svgX returns the SVG x-coordinate for bucket index i out of n total buckets,
 // centered within each equal-width flex slot of the chart-days label row.
-func svgX(i int) float64 {
-	return float64(2*i+1) * 300.0 / 14.0
+func svgX(i, n int) float64 {
+	return float64(2*i+1) * 300.0 / float64(2*n)
 }
 
 // svgY maps a metric value (1–10) to an SVG y-coordinate within viewBox 0 0 300 100.
@@ -36,6 +36,7 @@ func metricPtr(day ChartDay, metric string) *int {
 
 func ChartLinePath(days []ChartDay, metric string) string {
 	var sb strings.Builder
+	n := len(days)
 	started := false
 	for i, day := range days {
 		val := metricPtr(day, metric)
@@ -43,7 +44,7 @@ func ChartLinePath(days []ChartDay, metric string) string {
 			started = false
 			continue
 		}
-		x, y := svgX(i), svgY(*val)
+		x, y := svgX(i, n), svgY(*val)
 		if !started {
 			fmt.Fprintf(&sb, "M%.1f,%.1f", x, y)
 			started = true
@@ -56,6 +57,7 @@ func ChartLinePath(days []ChartDay, metric string) string {
 
 func ChartAreaPath(days []ChartDay, metric string) string {
 	var sb strings.Builder
+	n := len(days)
 	type seg struct{ from, to int }
 	var segs []seg
 	start := -1
@@ -70,16 +72,16 @@ func ChartAreaPath(days []ChartDay, metric string) string {
 		}
 	}
 	if start >= 0 {
-		segs = append(segs, seg{start, len(days) - 1})
+		segs = append(segs, seg{start, n - 1})
 	}
 	for _, s := range segs {
 		startVal := metricPtr(days[s.from], metric)
-		fmt.Fprintf(&sb, "M%.1f,%.1f", svgX(s.from), svgY(*startVal))
+		fmt.Fprintf(&sb, "M%.1f,%.1f", svgX(s.from, n), svgY(*startVal))
 		for i := s.from + 1; i <= s.to; i++ {
 			val := metricPtr(days[i], metric)
-			fmt.Fprintf(&sb, " L%.1f,%.1f", svgX(i), svgY(*val))
+			fmt.Fprintf(&sb, " L%.1f,%.1f", svgX(i, n), svgY(*val))
 		}
-		fmt.Fprintf(&sb, " L%.1f,95 L%.1f,95 Z", svgX(s.to), svgX(s.from))
+		fmt.Fprintf(&sb, " L%.1f,95 L%.1f,95 Z", svgX(s.to, n), svgX(s.from, n))
 	}
 	return sb.String()
 }
@@ -94,9 +96,10 @@ func ChartHasDot(days []ChartDay, metric string) bool {
 }
 
 func ChartDotX(days []ChartDay, metric string) float64 {
-	for i := len(days) - 1; i >= 0; i-- {
+	n := len(days)
+	for i := n - 1; i >= 0; i-- {
 		if metricPtr(days[i], metric) != nil {
-			return svgX(i)
+			return svgX(i, n)
 		}
 	}
 	return 0
