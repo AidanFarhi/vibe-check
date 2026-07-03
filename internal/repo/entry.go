@@ -53,7 +53,7 @@ func (r *EntryRepo) GetEntriesInRange(userID string, from, to time.Time) ([]doma
 	return entries, rows.Err()
 }
 
-func (r *EntryRepo) GetStreak(userID string) (int, error) {
+func (r *EntryRepo) GetStreak(userID string, today time.Time) (int, error) {
 	rows, err := r.db.Query(
 		`SELECT date FROM entry WHERE user_id = $1 ORDER BY date DESC`,
 		userID,
@@ -76,8 +76,6 @@ func (r *EntryRepo) GetStreak(userID string) (int, error) {
 	if len(dates) == 0 {
 		return 0, nil
 	}
-	now := time.Now()
-	today := time.Date(now.Year(), now.Month(), now.Day(), 0, 0, 0, 0, time.UTC)
 	yesterday := today.AddDate(0, 0, -1)
 	start := dates[0]
 	if !start.Equal(today) && !start.Equal(yesterday) {
