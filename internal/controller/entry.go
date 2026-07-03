@@ -31,10 +31,11 @@ func (c *EntryController) Submit(w http.ResponseWriter, r *http.Request) {
 
 	period := view.ParseChartPeriod(r.FormValue("period"))
 	metric := view.ParseChartMetric(r.FormValue("metric"))
+	today := todayLocal()
 
 	entry, err := c.entrySvc.SubmitEntry(
 		userID,
-		localDateUTC(),
+		today,
 		parseInt("depression"),
 		parseInt("happiness"),
 		parseInt("pain"),
@@ -54,17 +55,17 @@ func (c *EntryController) Submit(w http.ResponseWriter, r *http.Request) {
 		return
 	}
 
-	entries, err := c.entrySvc.GetRecentEntries(userID, view.DaysForPeriod(period))
+	entries, err := c.entrySvc.GetRecentEntries(userID, today, view.DaysForPeriod(period))
 	if err != nil {
 		http.Error(w, "Internal Server Error", http.StatusInternalServerError)
 		return
 	}
-	streak, err := c.entrySvc.GetStreak(userID)
+	streak, err := c.entrySvc.GetStreak(userID, today)
 	if err != nil {
 		http.Error(w, "Internal Server Error", http.StatusInternalServerError)
 		return
 	}
-	yesterday := localDateUTC().AddDate(0, 0, -1)
+	yesterday := today.AddDate(0, 0, -1)
 	var yesterdayEntry *domain.Entry
 	for i := range entries {
 		if entries[i].Date.Equal(yesterday) {
@@ -74,7 +75,7 @@ func (c *EntryController) Submit(w http.ResponseWriter, r *http.Request) {
 	}
 	c.tmpl.ExecuteTemplate(w, "entry-success", view.HomeView{
 		TodayEntry: entry,
-		Chart:      buildChartView(entries, period, metric),
+		Chart:      buildChartView(entries, today, period, metric),
 		Streak:     streak,
 		Deltas:     buildMetricDeltas(entry, yesterdayEntry),
 		ScoreLabel: buildScoreLabel(entry, yesterdayEntry),

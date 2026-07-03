@@ -23,22 +23,23 @@ func NewHome(tmpl *template.Template, entrySvc *service.EntryService) *Home {
 
 func (h *Home) Index(w http.ResponseWriter, r *http.Request) {
 	userID, _ := middleware.UserIDFromContext(r.Context())
-	entry, err := h.entrySvc.GetTodayEntry(userID, localDateUTC())
+	today := todayLocal()
+	entry, err := h.entrySvc.GetTodayEntry(userID, today)
 	if err != nil {
 		http.Error(w, "Internal Server Error", http.StatusInternalServerError)
 		return
 	}
-	entries, err := h.entrySvc.GetRecentEntries(userID, 7)
+	entries, err := h.entrySvc.GetRecentEntries(userID, today, 7)
 	if err != nil {
 		http.Error(w, "Internal Server Error", http.StatusInternalServerError)
 		return
 	}
-	streak, err := h.entrySvc.GetStreak(userID)
+	streak, err := h.entrySvc.GetStreak(userID, today)
 	if err != nil {
 		http.Error(w, "Internal Server Error", http.StatusInternalServerError)
 		return
 	}
-	yesterday := localDateUTC().AddDate(0, 0, -1)
+	yesterday := today.AddDate(0, 0, -1)
 	var yesterdayEntry *domain.Entry
 	for i := range entries {
 		if entries[i].Date.Equal(yesterday) {
@@ -46,14 +47,13 @@ func (h *Home) Index(w http.ResponseWriter, r *http.Request) {
 			break
 		}
 	}
-	estLoc, _ := time.LoadLocation("America/New_York")
 	v := view.HomeView{
 		TodayEntry:  entry,
-		Chart:       buildChartView(entries, view.Period7D, "score"),
+		Chart:       buildChartView(entries, today, view.Period7D, "score"),
 		Streak:      streak,
 		Deltas:      buildMetricDeltas(entry, yesterdayEntry),
 		ScoreLabel:  buildScoreLabel(entry, yesterdayEntry),
-		CurrentDate: time.Now().In(estLoc).Format("Mon, Jan 2"),
+		CurrentDate: time.Now().In(appTZ).Format("Mon, Jan 2"),
 	}
 	if err := h.tmpl.ExecuteTemplate(w, "home", v); err != nil {
 		http.Error(w, "Internal Server Error", http.StatusInternalServerError)
@@ -64,22 +64,35 @@ func (h *Home) Chart(w http.ResponseWriter, r *http.Request) {
 	userID, _ := middleware.UserIDFromContext(r.Context())
 	period := view.ParseChartPeriod(r.URL.Query().Get("period"))
 	metric := view.ParseChartMetric(r.URL.Query().Get("metric"))
-	entries, err := h.entrySvc.GetRecentEntries(userID, view.DaysForPeriod(period))
+	today := todayLocal()
+	entries, err := h.entrySvc.GetRecentEntries(userID, today, view.DaysForPeriod(period))
 	if err != nil {
 		http.Error(w, "Internal Server Error", http.StatusInternalServerError)
 		return
 	}
-	v := view.HomeView{Chart: buildChartView(entries, period, metric)}
+	v := view.HomeView{Chart: buildChartView(entries, today, period, metric)}
 	if err := h.tmpl.ExecuteTemplate(w, "chart-card", v); err != nil {
 		http.Error(w, "Internal Server Error", http.StatusInternalServerError)
 	}
 }
 
-// localDateUTC returns the local calendar date as a UTC midnight time.Time.
-// This ensures date comparisons match what PostgreSQL stores for DATE columns
-// when the pq driver sends timestamps in UTC.
-func localDateUTC() time.Time {
-	now := time.Now()
+// appTZ is the timezone used to determine the user's calendar "today". Entries
+// are keyed by local date, so bucketing and lookups must anchor to this zone,
+// not the server's UTC clock.
+var appTZ = mustLoadLocation("America/New_York")
+
+func mustLoadLocation(name string) *time.Location {
+	loc, err := time.LoadLocation(name)
+	if err != nil {
+		panic(fmt.Sprintf("load location %s: %v", name, err))
+	}
+	return loc
+}
+
+// todayLocal returns the user-local calendar date as a UTC midnight time.Time.
+// UTC midnight matches how PostgreSQL DATE values come back through the pq driver.
+func todayLocal() time.Time {
+	now := time.Now().In(appTZ)
 	return time.Date(now.Year(), now.Month(), now.Day(), 0, 0, 0, 0, time.UTC)
 }
 
@@ -145,8 +158,7 @@ func metricDelta(today, yesterday int, higherIsBetter bool) view.MetricDelta {
 	return view.MetricDelta{Text: fmt.Sprintf("%s %d from yesterday", arrow, abs), Class: class}
 }
 
-func buildChartView(entries []domain.Entry, period view.ChartPeriod, metric string) view.ChartView {
-	today := localDateUTC()
+func buildChartView(entries []domain.Entry, today time.Time, period view.ChartPeriod, metric string) view.ChartView {
 	byDate := make(map[string]domain.Entry, len(entries))
 	for _, e := range entries {
 		byDate[e.Date.Format("2006-01-02")] = e
